@@ -31,7 +31,19 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Aria
 .header{background:linear-gradient(135deg,var(--azul),var(--azul2));border-radius:24px;color:white;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;gap:18px;box-shadow:0 14px 35px rgba(0,51,102,.22)}
 .brand{display:flex;align-items:center;gap:18px}.logo{width:82px;height:82px;border-radius:50%;background:white;object-fit:contain;box-shadow:0 10px 24px rgba(0,0,0,.18)}
 .header h1{margin:0;font-size:28px}.header p{margin:6px 0 0;opacity:.9}.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-.toolbar{margin-top:18px;background:white;border-radius:20px;padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 8px 22px rgba(0,0,0,.06)}
+/* ---- STICKY HEADER (toolbar + cards) ---- */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  padding: 10px 0 0 0;
+  margin: 0 -22px; /* compensa o padding do .app */
+  padding-left: 22px;
+  padding-right: 22px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.toolbar{margin-top:0;background:white;border-radius:20px;padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 8px 22px rgba(0,0,0,.06)}
 .toolbar input{width:115px;padding:11px;border:1px solid var(--line);border-radius:12px;font-weight:800}
 .cards{margin-top:18px;display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:16px}
 .kpi-card{background:white;border-radius:22px;padding:21px;box-shadow:0 10px 28px rgba(0,0,0,.07);overflow:hidden;position:relative}.kpi-card::before{content:"";position:absolute;right:-35px;top:-35px;width:105px;height:105px;border-radius:50%;background:var(--azul);opacity:.12}
@@ -76,16 +88,26 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Aria
   </div>
 </header>
 
-<section class="toolbar">
-  <strong>Usuário:</strong><span id="usuarioLogado"></span>
-  <strong>Perfil:</strong><span id="perfilLogado"></span>
-  <label><strong>Ano:</strong></label><input type="number" id="ano" value="2026" onchange="calcularTudo()">
-  <label><strong>Meta Geral:</strong></label><input type="number" id="metaGeral" value="98" step="0.01" onchange="calcularTudo()">
-  <!-- Botão Administração (visível apenas para admin) -->
-  <button id="btnAdmin" class="btn btn-blue hidden" onclick="toggleAdmin()">⚙️ Administração</button>
-</section>
+<!-- PARTE FIXA (STICKY) - TOOLBAR + CARDS -->
+<div class="sticky-header">
+  <section class="toolbar">
+    <strong>Usuário:</strong><span id="usuarioLogado"></span>
+    <strong>Perfil:</strong><span id="perfilLogado"></span>
+    <label><strong>Ano:</strong></label><input type="number" id="ano" value="2026" onchange="calcularTudo()">
+    <label><strong>Meta Geral:</strong></label><input type="number" id="metaGeral" value="98" step="0.01" onchange="calcularTudo()">
+    <!-- Botão Administração (visível apenas para admin) -->
+    <button id="btnAdmin" class="btn btn-blue hidden" onclick="toggleAdmin()">⚙️ Administração</button>
+  </section>
 
-<!-- Área de Administração agrupada e oculta por padrão -->
+  <section class="cards">
+    <div class="kpi-card orange-border"><div class="kpi-title">Score Geral Ano</div><div class="kpi-value" id="scoreGeral">0%</div><div class="kpi-sub" id="statusGeral">Aguardando preenchimento</div></div>
+    <div class="kpi-card blue-border"><div class="kpi-title">Meta Geral</div><div class="kpi-value" id="metaCard">98%</div><div class="kpi-sub">Referência corporativa</div></div>
+    <div class="kpi-card green-border"><div class="kpi-title">Indicadores OK</div><div class="kpi-value" id="indicadoresOk">0/9</div><div class="kpi-sub">Baseado no último mês preenchido</div></div>
+    <div class="kpi-card red-border"><div class="kpi-title">Alertas</div><div class="kpi-value" id="alertas">0</div><div class="kpi-sub">Indicadores abaixo da meta</div></div>
+  </section>
+</div>
+
+<!-- Área de Administração (fica abaixo do sticky, rola normalmente) -->
 <div id="areaAdmin" class="hidden">
   <section id="configSupabase" class="panel admin-panel">
     <h2>⚙️ Configurações Supabase — Somente Admin</h2>
@@ -111,13 +133,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Aria
   </section>
 </div>
 
-<section class="cards">
-  <div class="kpi-card orange-border"><div class="kpi-title">Score Geral Ano</div><div class="kpi-value" id="scoreGeral">0%</div><div class="kpi-sub" id="statusGeral">Aguardando preenchimento</div></div>
-  <div class="kpi-card blue-border"><div class="kpi-title">Meta Geral</div><div class="kpi-value" id="metaCard">98%</div><div class="kpi-sub">Referência corporativa</div></div>
-  <div class="kpi-card green-border"><div class="kpi-title">Indicadores OK</div><div class="kpi-value" id="indicadoresOk">0/9</div><div class="kpi-sub">Baseado no último mês preenchido</div></div>
-  <div class="kpi-card red-border"><div class="kpi-title">Alertas</div><div class="kpi-value" id="alertas">0</div><div class="kpi-sub">Indicadores abaixo da meta</div></div>
-</section>
-
+<!-- CONTEÚDO ROLÁVEL (gráfico, ranking, tabela) -->
 <section class="grid">
   <div class="panel"><h2>📈 Evolução Mensal do Score</h2><canvas id="graficoMensal" height="105"></canvas></div>
   <div class="panel"><h2>🚨 Ranking de Impacto</h2><div class="ranking-list" id="ranking"></div><div class="footer-note">Ranking baseado no último mês preenchido.</div></div>
@@ -177,15 +193,10 @@ function abrirSistema(usuario){
 
  const isAdmin=usuario.perfil==="admin";
 
- // Mostrar botão de administração apenas para admin
  const btnAdmin=document.getElementById("btnAdmin");
- if(isAdmin){
-   btnAdmin.classList.remove("hidden");
- } else {
-   btnAdmin.classList.add("hidden");
- }
+ if(isAdmin) btnAdmin.classList.remove("hidden");
+ else btnAdmin.classList.add("hidden");
 
- // Garantir que a área admin esteja oculta inicialmente
  document.getElementById("areaAdmin").classList.add("hidden");
 
  initDashboard();
