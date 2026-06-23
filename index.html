@@ -246,10 +246,10 @@ const SUPABASE_KEY = "sb_publishable_CG8-Cflr7Wk0QyMJJyKwdw_GmYQ3FFn";
 // ========================================
 
 function getSupabase() {
-return window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
+    return window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 }
 
 // ========================================
@@ -258,36 +258,34 @@ SUPABASE_KEY
 
 async function salvarSupabase() {
 
-```
-try {
+    try {
 
-    const db = getSupabase();
+        const db = getSupabase();
 
-    const ano = parseInt(
-        document.getElementById("ano").value
-    );
+        const ano = parseInt(
+            document.getElementById("ano").value
+        );
 
-    await db
-        .from("indicadores_matriz")
-        .delete()
-        .eq("ano", ano);
+        await db
+            .from("indicadores_matriz")
+            .delete()
+            .eq("ano", ano);
 
-    const { error } = await db
-        .from("indicadores_matriz")
-        .insert(montarPayload());
+        const { error } = await db
+            .from("indicadores_matriz")
+            .insert(montarPayload());
 
-    if (error) throw error;
+        if (error) throw error;
 
-    toast("✅ Indicadores salvos no Supabase.");
+        toast("✅ Indicadores salvos no Supabase.");
 
-} catch (e) {
+    } catch (e) {
 
-    console.error(e);
+        console.error(e);
 
-    toast("❌ Erro ao salvar: " + e.message);
+        toast("❌ Erro ao salvar: " + e.message);
 
-}
-```
+    }
 
 }
 
@@ -297,75 +295,72 @@ try {
 
 async function carregarSupabase() {
 
-```
-try {
+    try {
 
-    const db = getSupabase();
+        const db = getSupabase();
 
-    const ano = parseInt(
-        document.getElementById("ano").value
-    );
-
-    const { data, error } = await db
-        .from("indicadores_matriz")
-        .select("*")
-        .eq("ano", ano)
-        .order("id", { ascending: true });
-
-    if (error) throw error;
-
-    if (!data || !data.length) {
-
-        toast(
-            "Nenhum registro encontrado para " + ano
+        const ano = parseInt(
+            document.getElementById("ano").value
         );
 
-        return;
+        const { data, error } = await db
+            .from("indicadores_matriz")
+            .select("*")
+            .eq("ano", ano);
+
+        if (error) throw error;
+
+        if (!data || !data.length) {
+
+            toast(
+                "Nenhum registro encontrado para " + ano
+            );
+
+            return;
+        }
+
+        const rows = [
+            ...document.querySelectorAll("#tbody tr")
+        ];
+
+        data.forEach(item => {
+
+            const row = rows.find(
+                r => r.cells[0].innerText === item.indicador
+            );
+
+            if (!row) return;
+
+            row.querySelector(".peso").value =
+                item.peso ?? "";
+
+            row.querySelector(".meta").value =
+                item.meta ?? "";
+
+            row.querySelector(".tipo").value =
+                item.tipo ?? "maior";
+
+            row.querySelectorAll(".valor")
+                .forEach((input, i) => {
+
+                    input.value =
+                        item[MESES[i]] ?? "";
+
+                });
+
+        });
+
+        calcularTudo();
+
+        toast("✅ Dados carregados do Supabase.");
+
+    } catch (e) {
+
+        console.error(e);
+
+        toast("❌ Erro ao carregar: " + e.message);
+
     }
-
-    const rows = [
-        ...document.querySelectorAll("#tbody tr")
-    ];
-
-    data.forEach(item => {
-
-        const row = rows.find(
-            r => r.cells[0].innerText === item.indicador
-        );
-
-        if (!row) return;
-
-        row.querySelector(".peso").value =
-            item.peso ?? "";
-
-        row.querySelector(".meta").value =
-            item.meta ?? "";
-
-        row.querySelector(".tipo").value =
-            item.tipo ?? "maior";
-
-        row.querySelectorAll(".valor")
-            .forEach((input, i) => {
-
-                input.value =
-                    item[MESES[i]] ?? "";
-
-            });
-
-    });
-
-    calcularTudo();
-
-    toast("✅ Dados carregados do Supabase.");
-
-} catch (e) {
-
-    console.error(e);
-
-    toast("❌ Erro ao carregar: " + e.message);
-
-}
-```
 
 }
 
@@ -375,26 +370,24 @@ try {
 
 function exportarExcel() {
 
-```
-const ws =
-    XLSX.utils.json_to_sheet(
-        montarPayload()
+    const ws =
+        XLSX.utils.json_to_sheet(
+            montarPayload()
+        );
+
+    const wb =
+        XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        wb,
+        ws,
+        "Indicadores"
     );
 
-const wb =
-    XLSX.utils.book_new();
-
-XLSX.utils.book_append_sheet(
-    wb,
-    ws,
-    "Indicadores"
-);
-
-XLSX.writeFile(
-    wb,
-    "indicadores_mundial_logistics.xlsx"
-);
-```
+    XLSX.writeFile(
+        wb,
+        "indicadores_mundial_logistics.xlsx"
+    );
 
 }
 
@@ -404,58 +397,56 @@ XLSX.writeFile(
 
 function exportarPDF() {
 
-```
-const { jsPDF } = window.jspdf;
+    const { jsPDF } = window.jspdf;
 
-const doc =
-    new jsPDF(
-        "l",
-        "mm",
-        "a4"
+    const doc =
+        new jsPDF(
+            "l",
+            "mm",
+            "a4"
+        );
+
+    doc.setFontSize(18);
+
+    doc.text(
+        "Mundial Logistics - Indicadores Matriz",
+        14,
+        18
     );
 
-doc.setFontSize(18);
+    doc.setFontSize(12);
 
-doc.text(
-    "Mundial Logistics - Indicadores Matriz",
-    14,
-    18
-);
+    doc.text(
+        "Score Geral: " +
+        document.getElementById("scoreGeral").innerText,
+        14,
+        30
+    );
 
-doc.setFontSize(12);
+    doc.text(
+        "Status: " +
+        document.getElementById("statusGeral").innerText,
+        14,
+        38
+    );
 
-doc.text(
-    "Score Geral: " +
-    document.getElementById("scoreGeral").innerText,
-    14,
-    30
-);
+    doc.text(
+        "Indicadores OK: " +
+        document.getElementById("indicadoresOk").innerText,
+        14,
+        46
+    );
 
-doc.text(
-    "Status: " +
-    document.getElementById("statusGeral").innerText,
-    14,
-    38
-);
+    doc.text(
+        "Alertas: " +
+        document.getElementById("alertas").innerText,
+        14,
+        54
+    );
 
-doc.text(
-    "Indicadores OK: " +
-    document.getElementById("indicadoresOk").innerText,
-    14,
-    46
-);
-
-doc.text(
-    "Alertas: " +
-    document.getElementById("alertas").innerText,
-    14,
-    54
-);
-
-doc.save(
-    "indicadores_mundial_logistics.pdf"
-);
-```
+    doc.save(
+        "indicadores_mundial_logistics.pdf"
+    );
 
 }
 
@@ -465,20 +456,18 @@ doc.save(
 
 function toast(msg) {
 
-```
-const t =
-    document.getElementById("toast");
+    const t =
+        document.getElementById("toast");
 
-t.innerText = msg;
+    t.innerText = msg;
 
-t.classList.add("show");
+    t.classList.add("show");
 
-setTimeout(() => {
+    setTimeout(() => {
 
-    t.classList.remove("show");
+        t.classList.remove("show");
 
-}, 3500);
-```
+    }, 3500);
 
 }
 
@@ -487,29 +476,25 @@ setTimeout(() => {
 // ========================================
 
 document.addEventListener(
-"DOMContentLoaded",
-async () => {
+    "DOMContentLoaded",
+    () => {
 
-```
-    const usuario =
-        JSON.parse(
-            sessionStorage.getItem(
-                "usuarioLogado"
-            ) || "null"
-        );
+        const usuario =
+            JSON.parse(
+                sessionStorage.getItem(
+                    "usuarioLogado"
+                ) || "null"
+            );
 
-    if (usuario) {
+        if (usuario) {
 
-        abrirSistema(usuario);
+            abrirSistema(usuario);
 
-        setTimeout(() => {
-            carregarSupabase();
-        }, 500);
+            setTimeout(() => {
+                carregarSupabase();
+            }, 500);
+
+        }
 
     }
-
-}
-```
-
 );
-
