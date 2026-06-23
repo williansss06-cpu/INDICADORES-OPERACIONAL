@@ -81,30 +81,35 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Aria
   <strong>Perfil:</strong><span id="perfilLogado"></span>
   <label><strong>Ano:</strong></label><input type="number" id="ano" value="2026" onchange="calcularTudo()">
   <label><strong>Meta Geral:</strong></label><input type="number" id="metaGeral" value="98" step="0.01" onchange="calcularTudo()">
+  <!-- Botão Administração (visível apenas para admin) -->
+  <button id="btnAdmin" class="btn btn-blue hidden" onclick="toggleAdmin()">⚙️ Administração</button>
 </section>
 
-<section id="configSupabase" class="panel admin-panel hidden">
-  <h2>⚙️ Configurações Supabase — Somente Admin</h2>
-  <div class="config-grid">
-    <div class="field"><label>SUPABASE_URL</label><input id="supabaseUrl" placeholder="https://xxxx.supabase.co"></div>
-    <div class="field"><label>SUPABASE_ANON_KEY</label><input id="supabaseKey" type="password" placeholder="Cole sua chave ANON"></div>
-    <button class="btn btn-orange" onclick="salvarConfiguracao()">Salvar Config</button>
-  </div>
-  <div class="footer-note">A chave ANON pode ser usada no frontend. Nunca coloque SERVICE_ROLE_KEY no HTML.</div>
-</section>
+<!-- Área de Administração agrupada e oculta por padrão -->
+<div id="areaAdmin" class="hidden">
+  <section id="configSupabase" class="panel admin-panel">
+    <h2>⚙️ Configurações Supabase — Somente Admin</h2>
+    <div class="config-grid">
+      <div class="field"><label>SUPABASE_URL</label><input id="supabaseUrl" placeholder="https://xxxx.supabase.co"></div>
+      <div class="field"><label>SUPABASE_ANON_KEY</label><input id="supabaseKey" type="password" placeholder="Cole sua chave ANON"></div>
+      <button class="btn btn-orange" onclick="salvarConfiguracao()">Salvar Config</button>
+    </div>
+    <div class="footer-note">A chave ANON pode ser usada no frontend. Nunca coloque SERVICE_ROLE_KEY no HTML.</div>
+  </section>
 
-<section id="adminPanel" class="panel admin-panel hidden">
-  <h2>👤 Cadastro de Usuários</h2>
-  <div class="user-grid">
-    <div class="field"><label>Nome</label><input id="novoNome" placeholder="Nome do usuário"></div>
-    <div class="field"><label>E-mail</label><input id="novoEmail" placeholder="email@empresa.com"></div>
-    <div class="field"><label>Senha</label><input id="novaSenha" type="password" placeholder="Senha"></div>
-    <div class="field"><label>Perfil</label><select id="novoPerfil"><option value="admin">Admin</option><option value="gestor">Gestor</option><option value="operacao">Operação</option><option value="consulta">Consulta</option></select></div>
-    <button class="btn btn-orange" onclick="cadastrarUsuario()">Cadastrar</button>
-  </div>
-  <div class="user-list" id="listaUsuarios"></div>
-  <div class="footer-note">Cadastro local no navegador. Para produção, use Laravel/Supabase Auth com senha criptografada.</div>
-</section>
+  <section id="adminPanel" class="panel admin-panel">
+    <h2>👤 Cadastro de Usuários</h2>
+    <div class="user-grid">
+      <div class="field"><label>Nome</label><input id="novoNome" placeholder="Nome do usuário"></div>
+      <div class="field"><label>E-mail</label><input id="novoEmail" placeholder="email@empresa.com"></div>
+      <div class="field"><label>Senha</label><input id="novaSenha" type="password" placeholder="Senha"></div>
+      <div class="field"><label>Perfil</label><select id="novoPerfil"><option value="admin">Admin</option><option value="gestor">Gestor</option><option value="operacao">Operação</option><option value="consulta">Consulta</option></select></div>
+      <button class="btn btn-orange" onclick="cadastrarUsuario()">Cadastrar</button>
+    </div>
+    <div class="user-list" id="listaUsuarios"></div>
+    <div class="footer-note">Cadastro local no navegador. Para produção, use Laravel/Supabase Auth com senha criptografada.</div>
+  </section>
+</div>
 
 <section class="cards">
   <div class="kpi-card orange-border"><div class="kpi-title">Score Geral Ano</div><div class="kpi-value" id="scoreGeral">0%</div><div class="kpi-sub" id="statusGeral">Aguardando preenchimento</div></div>
@@ -172,8 +177,16 @@ function abrirSistema(usuario){
 
  const isAdmin=usuario.perfil==="admin";
 
- document.getElementById("adminPanel").classList.toggle("hidden",!isAdmin);
- document.getElementById("configSupabase").classList.toggle("hidden",!isAdmin);
+ // Mostrar botão de administração apenas para admin
+ const btnAdmin=document.getElementById("btnAdmin");
+ if(isAdmin){
+   btnAdmin.classList.remove("hidden");
+ } else {
+   btnAdmin.classList.add("hidden");
+ }
+
+ // Garantir que a área admin esteja oculta inicialmente
+ document.getElementById("areaAdmin").classList.add("hidden");
 
  initDashboard();
  renderUsuarios();
@@ -181,6 +194,9 @@ function abrirSistema(usuario){
  setTimeout(() => {
      carregarSupabase();
  }, 500);
+}
+function toggleAdmin(){
+ document.getElementById("areaAdmin").classList.toggle("hidden");
 }
 function logout(){sessionStorage.removeItem("usuarioLogado");location.reload()}
 function cadastrarUsuario(){
@@ -498,3 +514,6 @@ document.addEventListener(
 
     }
 );
+</script>
+</body>
+</html>
