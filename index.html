@@ -25,38 +25,124 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Aria
 .login-card h1{text-align:center;color:var(--azul);margin:0}.login-card p{text-align:center;color:var(--muted);margin:8px 0 24px}
 .field{margin-bottom:14px}.field label{font-weight:800;color:var(--azul);font-size:13px}
 .field input,.field select{width:100%;padding:13px;margin-top:6px;border:1px solid var(--line);border-radius:13px;font-weight:700}
-.btn{border:0;border-radius:13px;padding:12px 16px;font-weight:900;color:#fff;cursor:pointer;transition:.2s}.btn:hover{transform:translateY(-1px);filter:brightness(.98)}
+.btn{border:0;border-radius:13px;padding:12px 16px;font-weight:900;color:#fff;cursor:pointer;transition:.2s;white-space:nowrap}.btn:hover{transform:translateY(-1px);filter:brightness(.98)}
 .btn-full{width:100%}.btn-orange{background:var(--laranja)}.btn-blue{background:var(--azul2)}.btn-dark{background:var(--dark)}.btn-green{background:var(--green)}.btn-red{background:var(--red)}
 .msg{margin-top:12px;text-align:center;font-weight:800}.app{padding:22px}
-.header{background:linear-gradient(135deg,var(--azul),var(--azul2));border-radius:24px;color:white;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;gap:18px;box-shadow:0 14px 35px rgba(0,51,102,.22)}
-.brand{display:flex;align-items:center;gap:18px}.logo{width:82px;height:82px;border-radius:50%;background:white;object-fit:contain;box-shadow:0 10px 24px rgba(0,0,0,.18)}
-.header h1{margin:0;font-size:28px}.header p{margin:6px 0 0;opacity:.9}.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-/* ---- STICKY HEADER (toolbar + cards) ---- */
+.header{background:linear-gradient(135deg,var(--azul),var(--azul2));border-radius:24px;color:white;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;box-shadow:0 14px 35px rgba(0,51,102,.22)}
+.brand{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.logo{width:82px;height:82px;border-radius:50%;background:white;object-fit:contain;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.header h1{margin:0;font-size:28px}.header p{margin:6px 0 0;opacity:.9}.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
 .sticky-header {
   position: sticky;
   top: 0;
   z-index: 10;
   background: var(--bg);
   padding: 10px 0 0 0;
-  margin: 0 -22px; /* compensa o padding do .app */
+  margin: 0 -22px;
   padding-left: 22px;
   padding-right: 22px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
-.toolbar{margin-top:0;background:white;border-radius:20px;padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 8px 22px rgba(0,0,0,.06)}
-.toolbar input{width:115px;padding:11px;border:1px solid var(--line);border-radius:12px;font-weight:800}
-.cards{margin-top:18px;display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:16px}
-.kpi-card{background:white;border-radius:22px;padding:21px;box-shadow:0 10px 28px rgba(0,0,0,.07);overflow:hidden;position:relative}.kpi-card::before{content:"";position:absolute;right:-35px;top:-35px;width:105px;height:105px;border-radius:50%;background:var(--azul);opacity:.12}
-.kpi-title{font-size:13px;font-weight:900;text-transform:uppercase;color:var(--muted)}.kpi-value{margin-top:10px;font-size:35px;font-weight:950;color:var(--azul)}.kpi-sub{color:var(--muted);font-size:13px;margin-top:6px}
-.orange-border{border-left:7px solid var(--laranja)}.blue-border{border-left:7px solid var(--azul2)}.green-border{border-left:7px solid var(--green)}.red-border{border-left:7px solid var(--red)}
-.grid{margin-top:18px;display:grid;grid-template-columns:2fr 1fr;gap:16px}.panel{background:white;border-radius:22px;padding:18px;box-shadow:0 10px 28px rgba(0,0,0,.07)}.panel h2{margin:0 0 14px;color:var(--azul);font-size:18px}
-.table-panel{margin-top:18px;overflow:auto}table{width:100%;min-width:1460px;border-collapse:separate;border-spacing:0}th{background:var(--azul);color:white;padding:13px 10px;font-size:13px;position:sticky;top:0;z-index:2}th:first-child{border-top-left-radius:14px}th:last-child{border-top-right-radius:14px}td{padding:9px;border-bottom:1px solid #EEF2F7;text-align:center;background:white}tbody tr:hover td{background:#F8FAFC}.indicador{text-align:left;min-width:220px;font-weight:900;color:var(--azul)}
-.num{width:78px;padding:9px;border:1px solid #D1D5DB;border-radius:10px;text-align:center;font-weight:800}.tipo{padding:8px;border:1px solid #D1D5DB;border-radius:10px;font-weight:800}.result-row td{background:#EAF7EE;font-weight:950;color:var(--azul)}
-.badge{display:inline-flex;justify-content:center;align-items:center;min-width:78px;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950}.ok{background:#DCFCE7;color:#166534}.warn{background:#FEF3C7;color:#92400E}.bad{background:#FEE2E2;color:#991B1B}.empty{background:#F3F4F6;color:#6B7280}
-.ranking-list{display:flex;flex-direction:column;gap:10px}.rank-item{background:#F8FAFC;border-left:5px solid var(--laranja);border-radius:14px;padding:12px}.rank-item strong{color:var(--azul)}.footer-note{color:var(--muted);font-size:12px;margin-top:12px}
-.user-grid,.config-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:10px;align-items:end}.config-grid{grid-template-columns:1fr 1fr auto}.admin-panel{margin-top:18px}.user-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}.user-item{background:#F8FAFC;padding:12px;border-radius:14px;display:flex;justify-content:space-between;gap:12px;align-items:center}
-.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:white;padding:14px 18px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.25);opacity:0;pointer-events:none;transform:translateY(10px);transition:.25s;z-index:99}.toast.show{opacity:1;transform:translateY(0)}
-@media(max-width:980px){.header,.brand,.actions,.toolbar{flex-direction:column;align-items:flex-start}.cards,.grid,.user-grid,.config-grid{grid-template-columns:1fr}}
+.toolbar{
+  margin-top:0;
+  background:white;
+  border-radius:20px;
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  box-shadow:0 8px 22px rgba(0,0,0,.06);
+}
+.toolbar > * {
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.toolbar input{width:100px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-weight:700;font-size:14px}
+.toolbar .btn{font-size:14px;padding:8px 14px}
+.cards{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+.kpi-card{
+  background:white;
+  border-radius:22px;
+  padding:21px 20px;
+  box-shadow:0 10px 28px rgba(0,0,0,.07);
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  min-height:130px;
+}
+.kpi-card::before{
+  content:"";
+  position:absolute;
+  right:-35px;
+  top:-35px;
+  width:105px;
+  height:105px;
+  border-radius:50%;
+  background:var(--azul);
+  opacity:.08;
+}
+.kpi-title{font-size:13px;font-weight:900;text-transform:uppercase;color:var(--muted);letter-spacing:0.3px}
+.kpi-value{margin-top:6px;font-size:34px;font-weight:950;color:var(--azul);line-height:1.2}
+.kpi-sub{color:var(--muted);font-size:13px;margin-top:4px;flex:1}
+.orange-border{border-left:7px solid var(--laranja)}
+.blue-border{border-left:7px solid var(--azul2)}
+.green-border{border-left:7px solid var(--green)}
+.red-border{border-left:7px solid var(--red)}
+.grid{margin-top:18px;display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.panel{background:white;border-radius:22px;padding:18px 20px;box-shadow:0 10px 28px rgba(0,0,0,.07)}
+.panel h2{margin:0 0 14px;color:var(--azul);font-size:18px;display:flex;align-items:center;gap:8px}
+.table-panel{margin-top:18px;overflow:auto}
+table{width:100%;min-width:1460px;border-collapse:separate;border-spacing:0}
+th{background:var(--azul);color:white;padding:13px 10px;font-size:13px;position:sticky;top:0;z-index:2}
+th:first-child{border-top-left-radius:14px}th:last-child{border-top-right-radius:14px}
+td{padding:9px;border-bottom:1px solid #EEF2F7;text-align:center;background:white}
+tbody tr:hover td{background:#F8FAFC}
+.indicador{text-align:left;min-width:220px;font-weight:900;color:var(--azul)}
+.num{width:78px;padding:9px;border:1px solid #D1D5DB;border-radius:10px;text-align:center;font-weight:800}
+.tipo{padding:8px;border:1px solid #D1D5DB;border-radius:10px;font-weight:800}
+.result-row td{background:#EAF7EE;font-weight:950;color:var(--azul)}
+.badge{display:inline-flex;justify-content:center;align-items:center;min-width:78px;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950}
+.ok{background:#DCFCE7;color:#166534}.warn{background:#FEF3C7;color:#92400E}.bad{background:#FEE2E2;color:#991B1B}.empty{background:#F3F4F6;color:#6B7280}
+.ranking-list{display:flex;flex-direction:column;gap:12px}
+.rank-item{
+  background:#F8FAFC;
+  border-left:5px solid var(--laranja);
+  border-radius:14px;
+  padding:14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.rank-item strong{color:var(--azul);font-size:15px}
+.rank-item .rank-detail{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.rank-item .rank-detail span{background:white;padding:2px 8px;border-radius:20px;border:1px solid var(--line)}
+.footer-note{color:var(--muted);font-size:12px;margin-top:12px}
+.user-grid,.config-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
+.config-grid{grid-template-columns:1fr 1fr auto}
+.admin-panel{margin-top:18px}
+.user-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.user-item{background:#F8FAFC;padding:12px;border-radius:14px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:white;padding:14px 18px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.25);opacity:0;pointer-events:none;transform:translateY(10px);transition:.25s;z-index:99}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:980px){
+  .header,.brand,.actions{flex-direction:column;align-items:flex-start}
+  .cards{grid-template-columns:1fr 1fr}
+  .grid{grid-template-columns:1fr}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .toolbar > *{width:100%;justify-content:space-between}
+  .user-grid,.config-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .cards{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -91,22 +177,38 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Aria
 <!-- PARTE FIXA (STICKY) - TOOLBAR + CARDS -->
 <div class="sticky-header">
   <section class="toolbar">
-    <strong>Usuário:</strong><span id="usuarioLogado"></span>
-    <strong>Perfil:</strong><span id="perfilLogado"></span>
-    <label><strong>Ano:</strong></label><input type="number" id="ano" value="2026" onchange="calcularTudo()">
-    <label><strong>Meta Geral:</strong></label><input type="number" id="metaGeral" value="98" step="0.01" onchange="calcularTudo()">
+    <div><strong>Usuário:</strong> <span id="usuarioLogado"></span></div>
+    <div><strong>Perfil:</strong> <span id="perfilLogado"></span></div>
+    <div><label><strong>Ano:</strong></label> <input type="number" id="ano" value="2026" onchange="calcularTudo()"></div>
+    <div><label><strong>Meta Geral:</strong></label> <input type="number" id="metaGeral" value="98" step="0.01" onchange="calcularTudo()"></div>
     <button id="btnAdmin" class="btn btn-blue hidden" onclick="toggleAdmin()">⚙️ Administração</button>
   </section>
 
   <section class="cards">
-    <div class="kpi-card orange-border"><div class="kpi-title">Score Geral Ano</div><div class="kpi-value" id="scoreGeral">0%</div><div class="kpi-sub" id="statusGeral">Aguardando preenchimento</div></div>
-    <div class="kpi-card blue-border"><div class="kpi-title">Meta Geral</div><div class="kpi-value" id="metaCard">98%</div><div class="kpi-sub">Referência corporativa</div></div>
-    <div class="kpi-card green-border"><div class="kpi-title">Indicadores OK</div><div class="kpi-value" id="indicadoresOk">0/9</div><div class="kpi-sub">Baseado no último mês preenchido</div></div>
-    <div class="kpi-card red-border"><div class="kpi-title">Alertas</div><div class="kpi-value" id="alertas">0</div><div class="kpi-sub">Indicadores abaixo da meta</div></div>
+    <div class="kpi-card orange-border">
+      <div class="kpi-title">Score Geral Ano</div>
+      <div class="kpi-value" id="scoreGeral">0%</div>
+      <div class="kpi-sub" id="statusGeral">Aguardando preenchimento</div>
+    </div>
+    <div class="kpi-card blue-border">
+      <div class="kpi-title">Meta Geral</div>
+      <div class="kpi-value" id="metaCard">98%</div>
+      <div class="kpi-sub">Referência corporativa</div>
+    </div>
+    <div class="kpi-card green-border">
+      <div class="kpi-title">Indicadores OK</div>
+      <div class="kpi-value" id="indicadoresOk">0/9</div>
+      <div class="kpi-sub">Baseado no último mês preenchido</div>
+    </div>
+    <div class="kpi-card red-border">
+      <div class="kpi-title">Alertas</div>
+      <div class="kpi-value" id="alertas">0</div>
+      <div class="kpi-sub">Indicadores abaixo da meta</div>
+    </div>
   </section>
 </div>
 
-<!-- Área de Administração (abaixo do sticky) -->
+<!-- Área de Administração -->
 <div id="areaAdmin" class="hidden">
   <section id="configSupabase" class="panel admin-panel">
     <h2>⚙️ Configurações Supabase — Somente Admin</h2>
@@ -158,71 +260,16 @@ const USUARIOS_PADRAO=[{nome:"Willian Soares",email:"williansss06@gmail.com",sen
 const MESES=["janeiro","fevereiro","marco","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
 const MESES_LABEL=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
-// Indicadores com pesos, metas e valores de exemplo (geram score ~97,85% e 3 alertas)
 const indicadores = [
-  {
-    nome: "OTD",
-    peso: 15,
-    meta: 97,
-    tipo: "maior",
-    valores: ["100","98","97","99","100","98","97","99","100","98","97","99"]
-  },
-  {
-    nome: "OTIF",
-    peso: 15,
-    meta: 97,
-    tipo: "maior",
-    valores: ["97.3","96.8","97.5","98.0","97.2","96.5","97.8","98.1","97.4","97.0","96.9","97.6"]
-  },
-  {
-    nome: "Fill Rate",
-    peso: 10,
-    meta: 98,
-    tipo: "maior",
-    valores: ["98.5","97.2","98.0","99.1","98.8","97.5","98.3","99.0","98.2","97.8","98.6","99.2"]
-  },
-  {
-    nome: "Acuracidade de Estoque",
-    peso: 15,
-    meta: 98,
-    tipo: "maior",
-    valores: ["97.91","97.85","98.02","98.10","97.95","97.80","98.05","98.15","97.92","97.88","98.00","98.08"]
-  },
-  {
-    nome: "Divergência Estoque",
-    peso: 10,
-    meta: 95,
-    tipo: "menor",
-    valores: ["94.2","93.8","94.5","95.0","94.0","93.5","94.8","95.2","94.1","93.9","94.6","95.1"]
-  },
-  {
-    nome: "Internalização 48h",
-    peso: 10,
-    meta: 98,
-    tipo: "maior",
-    valores: ["97.0","96.5","97.2","98.0","97.5","96.8","97.8","98.3","97.1","96.9","97.6","98.1"]
-  },
-  {
-    nome: "Produtividade Linhas",
-    peso: 10,
-    meta: 98,
-    tipo: "maior",
-    valores: ["96.5","97.0","98.0","98.5","97.2","96.8","97.5","98.2","97.0","96.7","97.8","98.4"]
-  },
-  {
-    nome: "Produtividade Picking",
-    peso: 15,
-    meta: 98,
-    tipo: "maior",
-    valores: ["93.0","92.5","93.8","94.2","93.1","92.8","93.5","94.0","93.2","92.9","93.6","94.1"]
-  },
-  {
-    nome: "Frete vs Tabela",
-    peso: 10,
-    meta: 100,
-    tipo: "menor",
-    valores: ["98.2","97.8","98.5","99.0","98.0","97.5","98.8","99.2","98.1","97.9","98.6","99.1"]
-  }
+  {nome:"OTD", peso:15, meta:97, tipo:"maior", valores:["100","98","97","99","100","98","97","99","100","98","97","99"]},
+  {nome:"OTIF", peso:15, meta:97, tipo:"maior", valores:["97.3","96.8","97.5","98.0","97.2","96.5","97.8","98.1","97.4","97.0","96.9","97.6"]},
+  {nome:"Fill Rate", peso:10, meta:98, tipo:"maior", valores:["98.5","97.2","98.0","99.1","98.8","97.5","98.3","99.0","98.2","97.8","98.6","99.2"]},
+  {nome:"Acuracidade de Estoque", peso:15, meta:98, tipo:"maior", valores:["97.91","97.85","98.02","98.10","97.95","97.80","98.05","98.15","97.92","97.88","98.00","98.08"]},
+  {nome:"Divergência Estoque", peso:10, meta:95, tipo:"menor", valores:["94.2","93.8","94.5","95.0","94.0","93.5","94.8","95.2","94.1","93.9","94.6","95.1"]},
+  {nome:"Internalização 48h", peso:10, meta:98, tipo:"maior", valores:["97.0","96.5","97.2","98.0","97.5","96.8","97.8","98.3","97.1","96.9","97.6","98.1"]},
+  {nome:"Produtividade Linhas", peso:10, meta:98, tipo:"maior", valores:["96.5","97.0","98.0","98.5","97.2","96.8","97.5","98.2","97.0","96.7","97.8","98.4"]},
+  {nome:"Produtividade Picking", peso:15, meta:98, tipo:"maior", valores:["93.0","92.5","93.8","94.2","93.1","92.8","93.5","94.0","93.2","92.9","93.6","94.1"]},
+  {nome:"Frete vs Tabela", peso:10, meta:100, tipo:"menor", valores:["98.2","97.8","98.5","99.0","98.0","97.5","98.8","99.2","98.1","97.9","98.6","99.1"]}
 ];
 
 let graficoMensal=null;
@@ -260,14 +307,10 @@ function abrirSistema(usuario){
  initDashboard();
  renderUsuarios();
 
- setTimeout(() => {
-     carregarSupabase();
- }, 500);
+ setTimeout(() => { carregarSupabase(); }, 500);
 }
-function toggleAdmin(){
- document.getElementById("areaAdmin").classList.toggle("hidden");
-}
-function logout(){sessionStorage.removeItem("usuarioLogado");location.reload()}
+function toggleAdmin(){ document.getElementById("areaAdmin").classList.toggle("hidden"); }
+function logout(){ sessionStorage.removeItem("usuarioLogado"); location.reload(); }
 function cadastrarUsuario(){
  const logado=JSON.parse(sessionStorage.getItem("usuarioLogado")||"null");
  if(!logado||logado.perfil!=="admin"){toast("Apenas admin pode cadastrar usuários.");return}
@@ -315,102 +358,86 @@ function calcularTudo(){
  atualizarStatusIndicadores(linhas,ultimoMes);atualizarRanking(linhas,ultimoMes);atualizarGrafico(scoresMes);
 }
 function atualizarStatusIndicadores(linhas,ultimoMes){let ok=0,alertas=0;linhas.forEach(l=>{const cell=l.row.querySelector(".statusIndicador");if(ultimoMes<0||l.valores[ultimoMes]===null){cell.innerHTML='<span class="badge empty">-</span>';return}const valor=l.valores[ultimoMes];const bom=l.tipo==="maior"?valor>=l.meta:valor<=l.meta;if(bom){ok++;cell.innerHTML='<span class="badge ok">🟢 OK</span>'}else{alertas++;cell.innerHTML='<span class="badge bad">🔴 Alerta</span>'}});document.getElementById("indicadoresOk").innerText=`${ok}/${linhas.length}`;document.getElementById("alertas").innerText=alertas;document.getElementById("statusUltimo").innerHTML=ultimoMes<0?'<span class="badge empty">-</span>':alertas===0?'<span class="badge ok">🟢 Mês OK</span>':alertas<=2?'<span class="badge warn">🟡 Atenção</span>':'<span class="badge bad">🔴 Crítico</span>'}
-function atualizarRanking(linhas,ultimoMes){const ranking=document.getElementById("ranking");ranking.innerHTML="";if(ultimoMes<0){ranking.innerHTML='<div class="rank-item">Preencha os indicadores para gerar o ranking.</div>';return}linhas.map(l=>{const at=atingimento(l.valores[ultimoMes],l.meta,l.tipo);return{nome:l.indicador,valor:l.valores[ultimoMes],meta:l.meta,perda:at===null?0:Math.max(0,(1-at)*l.peso)}}).sort((a,b)=>b.perda-a.perda).slice(0,5).forEach((item,idx)=>{const div=document.createElement("div");div.className="rank-item";div.innerHTML=`<strong>${idx+1}º ${item.nome}</strong><br>Perda ponderada: ${formatPct(item.perda)} • Realizado: ${formatPct(item.valor)} • Meta: ${formatPct(item.meta)}`;ranking.appendChild(div)})}
+function atualizarRanking(linhas,ultimoMes){
+ const ranking=document.getElementById("ranking"); ranking.innerHTML="";
+ if(ultimoMes<0){ranking.innerHTML='<div class="rank-item">Preencha os indicadores para gerar o ranking.</div>';return}
+ linhas.map(l=>{
+   const at=atingimento(l.valores[ultimoMes],l.meta,l.tipo);
+   return {nome:l.indicador, valor:l.valores[ultimoMes], meta:l.meta, perda:at===null?0:Math.max(0,(1-at)*l.peso)};
+ }).sort((a,b)=>b.perda-a.perda).slice(0,5).forEach((item,idx)=>{
+   const div=document.createElement("div");
+   div.className="rank-item";
+   div.innerHTML=`<strong>${idx+1}º ${item.nome}</strong>
+                  <div class="rank-detail">
+                    <span>Perda ponderada: ${formatPct(item.perda)}</span>
+                    <span>Realizado: ${formatPct(item.valor)}</span>
+                    <span>Meta: ${formatPct(item.meta)}</span>
+                  </div>`;
+   ranking.appendChild(div);
+ });
+}
 function montarGrafico(){if(graficoMensal)graficoMensal.destroy();graficoMensal=new Chart(document.getElementById("graficoMensal"),{type:"line",data:{labels:MESES_LABEL,datasets:[{label:"Score Mensal",data:[],borderWidth:4,tension:.35,pointRadius:5},{label:"Meta Geral",data:[],borderWidth:2,borderDash:[6,6],tension:0}]},options:{responsive:true,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true,suggestedMax:105,ticks:{callback:v=>v+"%"}}}}})}
 function atualizarGrafico(scoresMes){if(!graficoMensal)return;const metaGeral=parseNumero(document.getElementById("metaGeral").value)||98;graficoMensal.data.datasets[0].data=scoresMes.map(v=>v||null);graficoMensal.data.datasets[1].data=MESES.map(()=>metaGeral);graficoMensal.update()}
 function montarPayload(){const ano=parseInt(document.getElementById("ano").value);return getLinhas().map(l=>{const obj={ano,indicador:l.indicador,peso:l.peso,meta:l.meta,tipo:l.tipo};MESES.forEach((m,i)=>obj[m]=l.valores[i]);return obj})}
 // ========================================
-// SUPABASE FIXO NO SISTEMA
+// SUPABASE FIXO
 // ========================================
 const SUPABASE_URL = "https://gdlgceoliupjinkgunxe.supabase.co";
 const SUPABASE_KEY = "sb_publishable_CG8-Cflr7Wk0QyMJJyKwdw_GmYQ3FFn";
-
-function getSupabase() {
-    return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+function getSupabase(){ return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }
+async function salvarSupabase(){
+ try{
+   const db=getSupabase(); const ano=parseInt(document.getElementById("ano").value);
+   await db.from("indicadores_matriz").delete().eq("ano",ano);
+   const {error}=await db.from("indicadores_matriz").insert(montarPayload());
+   if(error) throw error;
+   toast("✅ Indicadores salvos no Supabase.");
+ }catch(e){ console.error(e); toast("❌ Erro ao salvar: "+e.message); }
 }
-
-async function salvarSupabase() {
-    try {
-        const db = getSupabase();
-        const ano = parseInt(document.getElementById("ano").value);
-        await db.from("indicadores_matriz").delete().eq("ano", ano);
-        const { error } = await db.from("indicadores_matriz").insert(montarPayload());
-        if (error) throw error;
-        toast("✅ Indicadores salvos no Supabase.");
-    } catch (e) {
-        console.error(e);
-        toast("❌ Erro ao salvar: " + e.message);
-    }
+async function carregarSupabase(){
+ try{
+   const db=getSupabase(); const ano=parseInt(document.getElementById("ano").value);
+   const {data,error}=await db.from("indicadores_matriz").select("*").eq("ano",ano);
+   if(error) throw error;
+   if(!data||!data.length){ toast("Nenhum registro encontrado para "+ano); return; }
+   const rows=[...document.querySelectorAll("#tbody tr")];
+   data.forEach(item=>{
+     const row=rows.find(r=>r.cells[0].innerText===item.indicador);
+     if(!row) return;
+     row.querySelector(".peso").value=item.peso??"";
+     row.querySelector(".meta").value=item.meta??"";
+     row.querySelector(".tipo").value=item.tipo??"maior";
+     row.querySelectorAll(".valor").forEach((input,i)=>input.value=item[MESES[i]]??"");
+   });
+   calcularTudo(); toast("✅ Dados carregados do Supabase.");
+ }catch(e){ console.error(e); toast("❌ Erro ao carregar: "+e.message); }
 }
-
-async function carregarSupabase() {
-    try {
-        const db = getSupabase();
-        const ano = parseInt(document.getElementById("ano").value);
-        const { data, error } = await db.from("indicadores_matriz").select("*").eq("ano", ano);
-        if (error) throw error;
-        if (!data || !data.length) {
-            toast("Nenhum registro encontrado para " + ano);
-            return;
-        }
-        const rows = [...document.querySelectorAll("#tbody tr")];
-        data.forEach(item => {
-            const row = rows.find(r => r.cells[0].innerText === item.indicador);
-            if (!row) return;
-            row.querySelector(".peso").value = item.peso ?? "";
-            row.querySelector(".meta").value = item.meta ?? "";
-            row.querySelector(".tipo").value = item.tipo ?? "maior";
-            row.querySelectorAll(".valor").forEach((input, i) => {
-                input.value = item[MESES[i]] ?? "";
-            });
-        });
-        calcularTudo();
-        toast("✅ Dados carregados do Supabase.");
-    } catch (e) {
-        console.error(e);
-        toast("❌ Erro ao carregar: " + e.message);
-    }
+function exportarExcel(){
+ const ws=XLSX.utils.json_to_sheet(montarPayload());
+ const wb=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(wb,ws,"Indicadores");
+ XLSX.writeFile(wb,"indicadores_mundial_logistics.xlsx");
 }
-
-function exportarExcel() {
-    const ws = XLSX.utils.json_to_sheet(montarPayload());
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Indicadores");
-    XLSX.writeFile(wb, "indicadores_mundial_logistics.xlsx");
+function exportarPDF(){
+ const {jsPDF}=window.jspdf;
+ const doc=new jsPDF("l","mm","a4");
+ doc.setFontSize(18); doc.text("Mundial Logistics - Indicadores Matriz",14,18);
+ doc.setFontSize(12);
+ doc.text("Score Geral: "+document.getElementById("scoreGeral").innerText,14,30);
+ doc.text("Status: "+document.getElementById("statusGeral").innerText,14,38);
+ doc.text("Indicadores OK: "+document.getElementById("indicadoresOk").innerText,14,46);
+ doc.text("Alertas: "+document.getElementById("alertas").innerText,14,54);
+ doc.save("indicadores_mundial_logistics.pdf");
 }
-
-function exportarPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF("l", "mm", "a4");
-    doc.setFontSize(18);
-    doc.text("Mundial Logistics - Indicadores Matriz", 14, 18);
-    doc.setFontSize(12);
-    doc.text("Score Geral: " + document.getElementById("scoreGeral").innerText, 14, 30);
-    doc.text("Status: " + document.getElementById("statusGeral").innerText, 14, 38);
-    doc.text("Indicadores OK: " + document.getElementById("indicadoresOk").innerText, 14, 46);
-    doc.text("Alertas: " + document.getElementById("alertas").innerText, 14, 54);
-    doc.save("indicadores_mundial_logistics.pdf");
-}
-
-function toast(msg) {
-    const t = document.getElementById("toast");
-    t.innerText = msg;
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 3500);
-}
-
+function toast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),3500); }
 function salvarConfiguracao(){
-    localStorage.setItem("supabaseUrl", document.getElementById("supabaseUrl").value.trim());
-    localStorage.setItem("supabaseKey", document.getElementById("supabaseKey").value.trim());
-    toast("Configuração Supabase salva.");
+ localStorage.setItem("supabaseUrl", document.getElementById("supabaseUrl").value.trim());
+ localStorage.setItem("supabaseKey", document.getElementById("supabaseKey").value.trim());
+ toast("Configuração Supabase salva.");
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    const usuario = JSON.parse(sessionStorage.getItem("usuarioLogado") || "null");
-    if (usuario) {
-        abrirSistema(usuario);
-        setTimeout(() => carregarSupabase(), 500);
-    }
+document.addEventListener("DOMContentLoaded",()=>{
+ const usuario=JSON.parse(sessionStorage.getItem("usuarioLogado")||"null");
+ if(usuario){ abrirSistema(usuario); setTimeout(()=>carregarSupabase(),500); }
 });
 </script>
 </body>
