@@ -169,10 +169,18 @@ function abrirSistema(usuario){
  document.getElementById("appPage").classList.remove("hidden");
  document.getElementById("usuarioLogado").innerText=usuario.nome+" ("+usuario.email+")";
  document.getElementById("perfilLogado").innerText=usuario.perfil;
+
  const isAdmin=usuario.perfil==="admin";
+
  document.getElementById("adminPanel").classList.toggle("hidden",!isAdmin);
  document.getElementById("configSupabase").classList.toggle("hidden",!isAdmin);
- initDashboard(); renderUsuarios();
+
+ initDashboard();
+ renderUsuarios();
+
+ setTimeout(() => {
+     carregarSupabase();
+ }, 500);
 }
 function logout(){sessionStorage.removeItem("usuarioLogado");location.reload()}
 function cadastrarUsuario(){
