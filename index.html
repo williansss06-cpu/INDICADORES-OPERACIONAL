@@ -341,7 +341,42 @@ function syncMsg(t,c=""){let e=document.getElementById("syncStatus");e.textConte
 function years(){let s=document.getElementById("yearSelect");s.innerHTML="";for(let y=2024;y<=2035;y++){let o=new Option(y,y,y===selectedYear,y===selectedYear);s.add(o)}}
 async function login(){let e=loginEmail.value.trim(),p=loginPassword.value;authError.textContent="Entrando...";let {data,error}=await sb.auth.signInWithPassword({email:e,password:p});if(error){authError.textContent=error.message;return}authError.textContent="";await enter(data.user)}
 async function logout(){await sb.auth.signOut();authOverlay.style.display="flex";syncMsg("Sessão encerrada")}
-async function enter(u){authOverlay.style.display="none";years();syncMsg("Carregando...");await loadAll()}
+async function enter(u){
+  try{
+    authError.textContent="Validando permissão...";
+    const email=(u?.email||"").trim().toLowerCase();
+
+    const {data: acesso,error}=await sb
+      .from("sustentacao_usuarios")
+      .select("email,perfil,ativo")
+      .eq("email",email)
+      .eq("ativo",true)
+      .maybeSingle();
+
+    if(error) throw error;
+
+    if(!acesso){
+      await sb.auth.signOut();
+      authOverlay.style.display="flex";
+      authError.textContent="Acesso não autorizado ao Plano de Sustentação Matriz.";
+      syncMsg("Acesso negado","err");
+      return;
+    }
+
+    window.usuarioSustentacao=acesso;
+    authError.textContent="";
+    authOverlay.style.display="none";
+    years();
+    syncMsg("Carregando...");
+    await loadAll();
+  }catch(e){
+    console.error(e);
+    await sb.auth.signOut();
+    authOverlay.style.display="flex";
+    authError.textContent="Não foi possível validar sua permissão: "+e.message;
+    syncMsg("Acesso não validado","err");
+  }
+}
 async function changeYear(){selectedYear=+yearSelect.value;await loadResults()}
 async function loadAll(){try{let {data,error}=await sb.from("sustentacao_indicadores").select("*").eq("ativo",true).order("ordem");if(error)throw error;indicatorIdMap={};data.forEach(x=>indicatorIdMap[x.nome]=x.id);await loadResults();await loadActions();syncMsg("Sincronizado","ok")}catch(e){syncMsg(e.message,"err")}}
 async function loadResults(){rows.forEach(r=>r[3]=Array(12).fill(null));Object.keys(indicatorDetails).forEach(k=>delete indicatorDetails[k]);let {data,error}=await sb.from("sustentacao_resultados").select("*").eq("ano",selectedYear);if(error)throw error;let names={};Object.entries(indicatorIdMap).forEach(([n,id])=>names[id]=n);data.forEach(x=>{let n=names[x.indicador_id],r=rows.find(z=>z[0]===n);if(r)r[3][x.mes-1]=x.resultado==null?null:+x.resultado;if(!indicatorDetails[n])indicatorDetails[n]={};indicatorDetails[n][x.mes-1]={volumeProduto:x.volume_produto||"",volumeTotal:x.total_processado??"",foraTotal:x.total_fora_meta??"",obs:x.observacao||"",clientes:[],_id:x.id}});let ids=data.map(x=>x.id);if(ids.length){let q=await sb.from("sustentacao_inventarios").select("*").in("resultado_id",ids);if(q.error)throw q.error;let rm={};data.forEach(x=>rm[x.id]=[names[x.indicador_id],x.mes-1]);q.data.forEach(v=>{let z=rm[v.resultado_id];if(z)getDetail(z[0],z[1]).clientes.push({cliente:v.cliente||"",total:v.total_inventariado??"",correto:v.total_correto??"",fora:v.total_divergente??"",resultado:v.resultado_percentual??""})})}render();syncMsg("Ano "+selectedYear+" carregado","ok")}
