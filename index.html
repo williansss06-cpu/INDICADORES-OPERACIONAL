@@ -47,6 +47,25 @@ td{padding:8px;border:1px solid #e4e9ee;text-align:center;font-size:13px} td:fir
 .actions th:last-child,.actions td:last-child{width:80px;text-align:center}
 footer{background:var(--navy);color:#fff;padding:22px 28px;display:flex;justify-content:space-around;font-weight:700;border-bottom:8px solid var(--orange)}
 .editable{outline:none}.editable:focus{box-shadow:inset 0 0 0 2px var(--orange)}
+.indicatorName{display:flex;align-items:center;gap:7px}
+.toggleDetail{width:24px;height:24px;padding:0;border-radius:50%;background:var(--navy);color:#fff;font-size:15px;line-height:24px}
+.detailRow{display:none;background:#f8fafc}
+.detailRow.open{display:table-row}
+.detailCell{padding:10px 14px!important;text-align:left!important;border-left:4px solid var(--orange)!important}
+.detailBox{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:10px}
+.detailField{background:#fff;border:1px solid var(--line);border-radius:7px;padding:8px}
+.detailField label{display:block;font-size:10px;font-weight:800;color:#667788;margin-bottom:4px;text-transform:uppercase}
+.detailField div{min-height:24px;font-weight:700}
+.inventoryGrid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr auto;gap:7px;align-items:center}
+.inventoryGrid input{width:100%;padding:7px;border:1px solid var(--line);border-radius:5px}
+.inventoryHeader{font-size:10px;font-weight:800;color:#667788;text-transform:uppercase}
+.addClient{padding:7px 10px;font-size:11px}
+.removeClient{background:#e52020;padding:6px 8px;font-size:10px}
+.monthTabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.monthTab{background:#e9eff4;color:var(--navy);padding:7px 10px;border-radius:5px;font-size:11px}
+.monthTab.active{background:var(--orange);color:#fff}
+.monthDetailContent{min-height:72px}
+@media(max-width:1100px){.detailBox{grid-template-columns:1fr 1fr}.inventoryGrid{grid-template-columns:1fr 1fr}}
 .note{font-size:12px;opacity:.85}
 @media print{.toolbar{display:none} body{background:white}.wrap{max-width:none} @page{size:A3 landscape;margin:8mm}}
 </style>
@@ -125,13 +144,92 @@ function cellClass(name,val,goal){
  let delta=Math.abs(val-goal);
  return delta<=2?"warn":"bad";
 }
+
+const indicatorDetails = JSON.parse(localStorage.getItem("indicatorDetailsMonthly")||"{}");
+
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function getDetail(name,mi){
+ if(!indicatorDetails[name]) indicatorDetails[name]={};
+ if(!indicatorDetails[name][mi]) indicatorDetails[name][mi]={volumeProduto:"",volumeTotal:"",foraTotal:"",obs:"",clientes:[]};
+ return indicatorDetails[name][mi];
+}
+function latestDataMonth(name){
+ const r=rows.find(x=>x[0]===name); if(!r)return 0;
+ let last=0; r[3].forEach((v,i)=>{if(v!==null&&v!==undefined&&v!=="")last=i}); return last;
+}
+function detailHTML(name){
+ const active=latestDataMonth(name);
+ const tabs=months.map((m,i)=>`<button class="monthTab ${i===active?"active":""}" onclick="showDetailMonth('${name}',${i},this)">${m.slice(0,3).toUpperCase()}</button>`).join("");
+ return `<div class="monthTabs">${tabs}</div><div class="monthDetailContent">${monthDetailHTML(name,active)}</div>`;
+}
+function monthDetailHTML(name,mi){
+ const d=getDetail(name,mi);
+ const monthLabel=months[mi].toUpperCase();
+ if(name==="Acuracidade de Estoque"){
+   let clients=(d.clientes||[]).map((c,i)=>`
+    <div class="inventoryGrid clientRow" data-index="${i}">
+      <input placeholder="Cliente" value="${esc(c.cliente)}" oninput="updateClient('${name}',${mi},${i},'cliente',this.value)">
+      <input placeholder="Total inventariado" value="${esc(c.total)}" oninput="updateClient('${name}',${mi},${i},'total',this.value)">
+      <input placeholder="Total correto" value="${esc(c.correto)}" oninput="updateClient('${name}',${mi},${i},'correto',this.value)">
+      <input placeholder="Total divergente" value="${esc(c.fora)}" oninput="updateClient('${name}',${mi},${i},'fora',this.value)">
+      <input placeholder="Resultado %" value="${esc(c.resultado)}" oninput="updateClient('${name}',${mi},${i},'resultado',this.value)">
+      <button class="removeClient" onclick="removeClient('${name}',${mi},${i})">Excluir</button>
+    </div>`).join("");
+   return `<div style="font-weight:800;margin-bottom:8px">Detalhamento do inventário — ${monthLabel}</div>
+   <div class="inventoryGrid inventoryHeader"><span>Cliente</span><span>Total inventariado</span><span>Total correto</span><span>Total divergente</span><span>Resultado</span><span></span></div>
+   <div>${clients||'<div style="padding:8px 0;color:#667788">Nenhum cliente informado neste mês.</div>'}</div>
+   <button class="addClient" onclick="addClient('${name}',${mi})">+ Incluir cliente em ${monthLabel}</button>`;
+ }
+ return `<div style="font-weight:800;margin-bottom:8px">Detalhamento — ${monthLabel}</div><div class="detailBox">
+   <div class="detailField"><label>Volume / produto</label><div contenteditable="true" class="editable" oninput="updateDetail('${name}',${mi},'volumeProduto',this.innerText)">${esc(d.volumeProduto)}</div></div>
+   <div class="detailField"><label>Total processado</label><div contenteditable="true" class="editable" oninput="updateDetail('${name}',${mi},'volumeTotal',this.innerText)">${esc(d.volumeTotal)}</div></div>
+   <div class="detailField"><label>Total fora da meta</label><div contenteditable="true" class="editable" oninput="updateDetail('${name}',${mi},'foraTotal',this.innerText)">${esc(d.foraTotal)}</div></div>
+   <div class="detailField"><label>Observação</label><div contenteditable="true" class="editable" oninput="updateDetail('${name}',${mi},'obs',this.innerText)">${esc(d.obs)}</div></div>
+ </div>`;
+}
+function saveDetails(){localStorage.setItem("indicatorDetailsMonthly",JSON.stringify(indicatorDetails))}
+function updateDetail(name,mi,key,value){getDetail(name,mi)[key]=value;saveDetails()}
+function toggleIndicatorDetail(btn){
+ const detail=btn.closest("tr").nextElementSibling;
+ detail.classList.toggle("open");
+ btn.textContent=detail.classList.contains("open")?"−":"+";
+ btn.title=detail.classList.contains("open")?"Recolher detalhes":"Abrir detalhes";
+}
+function showDetailMonth(name,mi,btn){
+ const row=btn.closest(".detailRow");
+ row.querySelectorAll(".monthTab").forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");
+ row.querySelector(".monthDetailContent").innerHTML=monthDetailHTML(name,mi);
+}
+function addClient(name,mi){
+ const d=getDetail(name,mi); if(!d.clientes)d.clientes=[];
+ d.clientes.push({cliente:"",total:"",correto:"",fora:"",resultado:""});
+ saveDetails(); refreshDetailMonth(name,mi);
+}
+function updateClient(name,mi,i,key,value){getDetail(name,mi).clientes[i][key]=value;saveDetails()}
+function removeClient(name,mi,i){getDetail(name,mi).clientes.splice(i,1);saveDetails();refreshDetailMonth(name,mi)}
+function refreshDetailMonth(name,mi){
+ const row=[...document.querySelectorAll(".detailRow")].find(x=>x.dataset.indicator===name);
+ if(row){
+   row.querySelector(".monthDetailContent").innerHTML=monthDetailHTML(name,mi);
+   row.querySelectorAll(".monthTab").forEach((b,i)=>b.classList.toggle("active",i===mi));
+   row.classList.add("open");
+   const b=row.previousElementSibling.querySelector(".toggleDetail"); if(b)b.textContent="−";
+ }
+}
+
 function render(){
  const tb=document.querySelector("#kpiTable tbody"); tb.innerHTML="";
  rows.forEach(r=>{
    const tr=document.createElement("tr");
-   tr.innerHTML=`<td>${r[0]}</td><td>${r[1]}%</td><td>${r[2]}%</td>`+
+   tr.innerHTML=`<td><div class="indicatorName"><button class="toggleDetail" onclick="toggleIndicatorDetail(this)" title="Abrir detalhes">+</button><span>${r[0]}</span></div></td><td>${r[1]}%</td><td>${r[2]}%</td>`+
    months.map((m,i)=>`<td contenteditable="true" data-r="${r[0]}" data-i="${i}" class="editable ${cellClass(r[0],r[3][i],r[2])}">${fmt(r[3][i])}</td>`).join("");
    tb.appendChild(tr);
+   const dtr=document.createElement("tr");
+   dtr.className="detailRow";
+   dtr.dataset.indicator=r[0];
+   dtr.innerHTML=`<td colspan="15" class="detailCell">${detailHTML(r[0])}</td>`;
+   tb.appendChild(dtr);
  });
  document.querySelectorAll("#kpiTable td[contenteditable]").forEach(td=>td.onblur=()=>{
    let txt=td.innerText.replace("%","").replace(",",".").trim(), rr=rows.find(x=>x[0]===td.dataset.r);
