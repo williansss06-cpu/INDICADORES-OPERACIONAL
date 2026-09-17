@@ -100,8 +100,51 @@ footer{background:var(--navy);color:#fff;padding:22px 28px;display:flex;justify-
   @media(max-width:1250px){.absKpis{grid-template-columns:repeat(3,1fr)}.absGrid{grid-template-columns:1fr 1fr}}
   @media(max-width:760px){.viewTabs{padding-left:10px;padding-right:10px}.absControls{grid-template-columns:1fr 1fr}.absKpis{grid-template-columns:repeat(2,1fr)}.absGrid{grid-template-columns:1fr}}
 
+
+  /* Dashboard executivo de absenteísmo */
+  .execAbs{padding:18px 24px 26px;background:#f5f8fb}
+  .execAbsHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px}
+  .execEyebrow{display:block;color:var(--orange);font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+  .execAbs h2{margin:0;color:var(--navy);border:0;padding:0;font-size:25px}
+  .execSubtitle{margin:5px 0 0;color:#65798d;font-size:13px}
+  .execAbsStatus{white-space:nowrap;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--navy);font-size:11px;font-weight:800}
+  .execAbsStatus.ok{background:#e5f7ed;color:#087a35;border-color:#b9e8ca}
+  .execAbsStatus.err{background:#fff0f0;color:#b21818;border-color:#f1bcbc}
+  .execFilters{display:flex;align-items:end;gap:9px;flex-wrap:wrap;padding:12px;background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:14px;box-shadow:0 2px 8px rgba(9,43,77,.04)}
+  .execFilters label{min-width:130px;flex:1;color:var(--navy);font-size:11px;font-weight:900}
+  .execFilters input,.execFilters select{display:block;width:100%;margin-top:5px;padding:8px 9px;border:1px solid #ccd9e4;border-radius:6px;background:#fff;color:var(--navy);font:inherit;font-size:12px}
+  .execFilters button{height:35px;padding:8px 12px;font-size:11px}
+  .execFile{display:inline-flex!important;align-items:center;justify-content:center;min-width:170px;flex:0 0 auto!important;background:var(--orange);color:#fff!important;border-radius:7px;padding:9px 12px!important;cursor:pointer}
+  .execFile input{display:none!important}
+  .execStatus{margin-left:auto;min-width:150px;text-align:center}
+  .execKpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:14px}
+  .execKpi{position:relative;min-height:104px;padding:13px 14px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 8px rgba(9,43,77,.04);overflow:hidden}
+  .execKpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--orange)}
+  .execKpiLabel{display:block;color:#60758a;font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;max-width:92%}
+  .execKpiValue{display:block;margin-top:8px;color:var(--navy);font-size:22px;font-weight:900;line-height:1.05}
+  .execKpiMeta{display:block;margin-top:8px;color:#718598;font-size:10px;font-weight:700}
+  .execKpiMeta.up{color:#008d53}.execKpiMeta.down{color:#d15b21}.execKpiMeta.neutral{color:#718598}
+  .execGrid{display:grid;grid-template-columns:1.35fr 1fr 1.25fr;gap:12px;margin-bottom:12px}
+  .execCard{min-width:0;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;box-shadow:0 2px 8px rgba(9,43,77,.04)}
+  .execCard.wide{grid-column:span 2}
+  .execCard h3{margin:0 0 9px;padding-left:10px;border-left:4px solid var(--orange);color:var(--navy);font-size:14px}
+  .execChart{height:245px;position:relative}
+  .execChart canvas{width:100%!important;height:100%!important}
+  .execChartNote{margin:-2px 0 7px;color:#73879a;font-size:10px}
+  .execBottom{display:grid;grid-template-columns:1.35fr 1fr;gap:12px}
+  .execTable{overflow:auto}
+  .execTable table{min-width:620px;width:100%;border-collapse:collapse}
+  .execTable th{position:static;background:var(--navy);color:#fff;padding:8px;font-size:10px;white-space:nowrap}
+  .execTable td{padding:8px;border:1px solid #e3e9ef;text-align:center;font-size:11px;white-space:nowrap}
+  .execTable td:first-child{text-align:left;font-weight:800;color:var(--navy)}
+  .execBadge{display:inline-block;padding:4px 7px;border-radius:12px;font-size:10px;font-weight:900}
+  .execBadge.ok{background:#daf4e3;color:#087a35}.execBadge.warn{background:#fff0cf;color:#966400}.execBadge.alert{background:#ffe0e0;color:#b21818}.execBadge.info{background:#e8eef5;color:#48647f}
+  .execEmpty{display:flex;align-items:center;justify-content:center;min-height:105px;color:#73879a;font-size:12px;text-align:center;padding:15px}
+  @media(max-width:1250px){.execKpis{grid-template-columns:repeat(3,1fr)}.execGrid{grid-template-columns:1fr 1fr}.execCard.wide{grid-column:span 2}}
+  @media(max-width:760px){.execAbs{padding:14px 10px 20px}.execAbsHeader{display:block}.execAbsStatus{display:inline-block;margin-top:10px}.execFilters label{min-width:calc(50% - 5px)}.execStatus{margin-left:0;min-width:100%}.execKpis{grid-template-columns:repeat(2,1fr)}.execGrid,.execBottom{grid-template-columns:1fr}.execCard.wide{grid-column:auto}.execChart{height:220px}}
+
 </style>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
 <body><div id="authOverlay" class="authOverlay"><div class="authBox"><h2 style="border:0;padding:0">PLANO DE SUSTENTAÇÃO MATRIZ</h2><p>Acesso restrito • Mundial Logistics</p><b>E-mail</b><input id="loginEmail" type="email"><b>Senha</b><input id="loginPassword" type="password"><button onclick="login()">ENTRAR</button><div id="authError" class="authError"></div></div></div>
 <div class="wrap">
 <header>
@@ -161,31 +204,34 @@ footer{background:var(--navy);color:#fff;padding:22px 28px;display:flex;justify-
 </div>
 
 <div id="viewAbsenteismo" class="viewPanel">
-  <section>
-    <h2>ANÁLISE DE ABSENTEÍSMO E HORAS IMPRODUTIVAS</h2>
-    <div class="absNote"><b>Fonte principal:</b> os dados são carregados das tabelas <b>absenteismo_registros</b> e <b>absenteismo_areas</b> do Supabase. Nesse modo, o sistema usa as horas esperadas e o índice já calculados no banco. O upload de planilha continua disponível como alternativa; nele, o HC é contado pela própria planilha e o total usa HC × dias úteis × jornada diária.</div>
-    <div class="absControls">
-      <label class="absOptional">Fonte de dados<select id="absSource" onchange="absHandleSourceChange()"><option value="supabase">Supabase</option><option value="upload">Upload de planilha</option></select></label>
-      <label>Mês de referência<input id="absMonth" type="month" value="2026-05" onchange="absMonthChange()"></label>
-      <label>Local<select id="absLocalFilter" onchange="absRecalculate()"><option value="">Todos os locais</option></select></label>
-      <label>Jornada diária (horas)<input id="absDailyHours" type="number" min="0.1" max="24" step="0.1" value="8" onchange="absRecalculate()"></label>
-      <label class="absOptional">Feriados adicionais<input id="absExtraHolidays" type="text" placeholder="dd/mm, dd/mm" onchange="absRecalculate()"></label>
-      <label class="absOptional">Feriado de 1º de maio<select id="absMayHoliday" onchange="absRecalculate()"><option value="sim">Descontar</option><option value="nao">Não descontar</option></select></label>
-      <div class="absActions">
-        <button class="secondary" onclick="absLoadSupabase()">Atualizar do Supabase</button>
-        <label class="fileLabel">Enviar planilha XLSX/CSV<input id="absFile" type="file" accept=".xlsx,.xls,.csv,text/csv" onchange="absHandleFile(event)"></label>
-        <button class="secondary" onclick="absDownloadCSV()">Baixar resumo CSV</button>
-        <button class="secondary absOptional" onclick="absClearHistory()">Limpar histórico local</button>
-        <span id="absStatus" class="syncStatus">Aguardando planilha</span>
-      </div>
+  <section class="execAbs">
+    <div class="execAbsHeader">
+      <div><span class="execEyebrow">Performance operacional</span><h2>Análise de Absenteísmo</h2><p class="execSubtitle">Visão executiva de horas improdutivas, evolução mensal e principais pontos de atenção.</p></div>
+      <div id="absExecStatus" class="execAbsStatus">Aguardando login</div>
     </div>
-    <div id="absKpis" class="absKpis"></div>
-    <div class="absGrid">
-      <div class="absCard"><h3>Indicadores por motivo</h3><div id="absReasons" class="absTable"></div></div>
-      <div class="absCard"><h3>10 principais inflatores</h3><div id="absTopPeople" class="absTable"></div></div>
-      <div class="absCard"><h3>Resumo por centro de custo</h3><div id="absCostCenters" class="absTable"></div></div>
+    <div class="execFilters">
+      <label>Ano<select id="absYear" onchange="absYearChange()"></select></label>
+      <label>Mês<select id="absMonth" onchange="absMonthChange()"></select></label>
+      <label>Local<select id="absLocalFilter" onchange="absFilterChange()"><option value="">Todos os locais</option></select></label>
+      <label>Área<select id="absAreaFilter" onchange="absFilterChange()"><option value="">Todas as áreas</option></select></label>
+      <label>Jornada upload<input id="absDailyHours" type="number" min="0.1" max="24" step="0.1" value="8" onchange="absRecalculate()"></label>
+      <button class="secondary" onclick="absLoadSupabase()">Atualizar dados</button>
+      <label class="execFile">Importar planilha<input id="absFile" type="file" accept=".xlsx,.xls,.csv,text/csv" onchange="absHandleFile(event)"></label>
+      <button class="secondary" onclick="absDownloadCSV()">Exportar CSV</button>
+      <span id="absStatus" class="syncStatus execStatus">Aguardando dados</span>
     </div>
-    <div class="absCard absHistory absOptional"><h3>Histórico mensal salvo neste navegador</h3><div id="absHistoryTable" class="absTable"></div></div>
+    <div id="absKpis" class="execKpis"></div>
+    <div class="execGrid">
+      <article class="execCard wide"><h3>Evolução do Absenteísmo (%)</h3><div id="absMetaNote" class="execChartNote"></div><div class="execChart"><canvas id="absTrendPctChart"></canvas></div></article>
+      <article class="execCard"><h3>Distribuição por Motivo</h3><div class="execChart"><canvas id="absReasonsChart"></canvas></div></article>
+      <article class="execCard"><h3>Top 10 Colaboradores — Horas Improdutivas</h3><div class="execChart"><canvas id="absTopChart"></canvas></div></article>
+      <article class="execCard"><h3>Absenteísmo por Área / Centro de Custo</h3><div class="execChart"><canvas id="absAreaChart"></canvas></div></article>
+      <article class="execCard wide"><h3>Tendência de Horas Improdutivas</h3><div id="absProjectionNote" class="execChartNote"></div><div class="execChart"><canvas id="absHoursTrendChart"></canvas></div></article>
+    </div>
+    <div class="execBottom">
+      <article class="execCard"><h3>Resumo por Centro de Custo</h3><div id="absCostCenters" class="execTable"></div></article>
+      <article class="execCard"><h3>Indicadores e Ações</h3><div id="absActions" class="execTable"></div></article>
+    </div>
   </section>
 </div>
 
@@ -194,103 +240,62 @@ footer{background:var(--navy);color:#fff;padding:22px 28px;display:flex;justify-
 <script>
 const months=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
 
-/* Aba de análise de absenteísmo */
+/* Aba executiva de análise de absenteísmo */
 let absRows = [];
 let absUploadRows = [];
 let absSupabaseRows = [];
 let absSupabaseAreas = [];
 let absSourceMode = localStorage.getItem("absenteismoSource") || "supabase";
 let absFileName = "";
-const absDefaultHeaders = ["Cadastro","Nome","Admissão","Situação","Descrição Cargo","Descrição (C.Custo)","SETOR","Faltas","Horas Atestados","Atrasos","Paternidade","Total Horas Não Trabalhadas"];
-const absAliases = {
-  cadastro:["cadastro","matricula","matrícula","id"], nome:["nome","colaborador","funcionario","funcionário"], admissao:["admissão","admissao"], situacao:["situação","situacao","status"], cargo:["descrição cargo","descricao cargo","cargo","função","funcao"], centro:["descrição (c.custo)","descricao (c.custo)","centro de custo","centro","ccusto"], setor:["setor"], faltas:["faltas","falta"], atestados:["horas atestados","atestados","hora atestado"], atrasos:["atrasos","atraso"], paternidade:["paternidade"], total:["total horas não trabalhadas","total horas nao trabalhadas","total improdutivas","horas improdutivas","total"]
-};
-const absReasonLabels = {faltas:"Faltas", atestados:"Horas de atestados", atrasos:"Atrasos", paternidade:"Paternidade"};
+let absCharts = {};
+const absMonths = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const absReasonLabels = {faltas:"Faltas", atestados:"Horas de atestados", atrasos:"Atrasos"};
+const absAliases = {cadastro:["cadastro","matricula","matrícula","id"],nome:["nome","colaborador","funcionario","funcionário"],admissao:["admissão","admissao"],situacao:["situação","situacao","status"],cargo:["descrição cargo","descricao cargo","cargo","função","funcao"],centro:["descrição (c.custo)","descricao (c.custo)","centro de custo","centro","ccusto"],setor:["setor","area","área"],faltas:["faltas","falta"],atestados:["horas atestados","atestados","hora atestado"],atrasos:["atrasos","atraso"],total:["total horas não trabalhadas","total horas nao trabalhadas","total improdutivas","horas improdutivas","total"]};
 function absNorm(v){return String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim()}
 function absNum(v){if(v==null||String(v).trim()==="")return 0;let s=String(v).trim().replace(/\s/g,"");if(s.includes(",")&&s.includes(".")){s=s.lastIndexOf(",")>s.lastIndexOf(".")?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"")}else{s=s.replace(",",".")}s=s.replace(/[^0-9.-]/g,"");let n=Number(s);return Number.isFinite(n)?n:0}
 function absEsc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
-function absParseDate(v){if(v instanceof Date)return v;if(typeof v==="number"&&window.XLSX&&XLSX.SSF){let p=XLSX.SSF.parse_date_code(v);return p?new Date(p.y,p.m-1,p.d):null}let s=String(v??"").trim();if(!s)return null;let m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);let d=new Date(s);return Number.isNaN(d.getTime())?null:d}
-function absKeyForHeader(h){let n=absNorm(h);for(const [key,aliases] of Object.entries(absAliases)){if(aliases.includes(n))return key}return ""}
-function absRowsFromMatrix(matrix){
-  if(!matrix?.length)throw new Error("A planilha está vazia.");
-  let headerRow=matrix.findIndex(r=>r.some(c=>absKeyForHeader(c)==="cadastro"||absKeyForHeader(c)==="nome"));
-  if(headerRow<0)headerRow=0;
-  const headers=matrix[headerRow].map(x=>String(x??""));
-  const keys=headers.map(absKeyForHeader);
-  const get=(row,key)=>{let i=keys.indexOf(key);return i>=0?row[i]:""};
-  const out=[];const seen=new Set();
-  matrix.slice(headerRow+1).forEach(row=>{
-    const cadastro=String(get(row,"cadastro")??"").trim();const nome=String(get(row,"nome")??"").trim();
-    if(!cadastro&&!nome)return;
-    const identity=cadastro||nome;
-    if(seen.has(identity))return;seen.add(identity);
-    const motivos={faltas:absNum(get(row,"faltas")),atestados:absNum(get(row,"atestados")),atrasos:absNum(get(row,"atrasos")),paternidade:absNum(get(row,"paternidade"))};
-    const totalCell=get(row,"total");const total=String(totalCell??"").trim()===""?Object.values(motivos).reduce((a,b)=>a+b,0):absNum(totalCell);
-    out.push({cadastro,nome:nome||cadastro,admissao:get(row,"admissao"),situacao:String(get(row,"situacao")??"").trim(),cargo:String(get(row,"cargo")??"").trim(),centro:String(get(row,"centro")??"").trim()||"Não informado",setor:String(get(row,"setor")??"").trim(),...motivos,total});
-  });
-  if(!out.length)throw new Error("Não encontrei registros válidos. Verifique a coluna Cadastro ou Nome.");
-  return out;
-}
-function absReadCSV(text){const lines=text.replace(/\r/g,"").split("\n").filter(x=>x.trim());if(!lines.length)return [];const sep=(lines[0].match(/;/g)||[]).length>=(lines[0].match(/,/g)||[]).length?";":",";return lines.map(line=>{let a=[],cur="",quoted=false;for(let i=0;i<line.length;i++){let ch=line[i];if(ch==='"'){if(quoted&&line[i+1]==='"'){cur+='"';i++}else quoted=!quoted}else if(ch===sep&&!quoted){a.push(cur);cur=""}else cur+=ch}a.push(cur);return a.map(x=>x.trim())})}
-function absSetStatus(text,cls=""){const e=document.getElementById("absStatus");if(!e)return;e.textContent=text;e.className="syncStatus "+cls}
-function absLoadMatrix(matrix,name="Planilha"){
-  try{absUploadRows=absRowsFromMatrix(matrix);absFileName=name;localStorage.setItem("absenteismoRows",JSON.stringify(absUploadRows));localStorage.setItem("absenteismoFile",name);absSourceMode="upload";localStorage.setItem("absenteismoSource","upload");document.getElementById("absSource").value="upload";absRows=absUploadRows;absSetStatus(`${absRows.length} cadastros carregados do upload`,"ok");absRecalculate()}catch(e){absSetStatus("Erro na planilha","err");alert(e.message)}
-}
-function absApplyLocalOptions(){
-  const select=document.getElementById("absLocalFilter");if(!select)return;
-  const locals=[...new Set((absSupabaseRows||[]).map(r=>r.local).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
-  const current=select.value;select.innerHTML='<option value="">Todos os locais</option>'+locals.map(x=>`<option value="${absEsc(x)}">${absEsc(x)}</option>`).join("");if(locals.includes(current))select.value=current;
-}
-async function absLoadSupabase(){
-  if(typeof sb==="undefined"){absSetStatus("Supabase ainda não está disponível","err");return}
-  const month=document.getElementById("absMonth")?.value||"";if(!month){absSetStatus("Informe o mês","err");return}
-  absSetStatus("Consultando Supabase...");
-  try{
-    const [reg,areas]=await Promise.all([
-      sb.from("absenteismo_registros").select("mes_referencia,local,colaborador,setor,cargo,situacao,horas_esperadas,horas_trabalhadas,horas_faltas,horas_atestados,horas_atrasos,horas_improdutivas,indice_absenteismo").eq("mes_referencia",month).order("colaborador").limit(5000),
-      sb.from("absenteismo_areas").select("mes_referencia,local,area,total_horas,horas_faltas,horas_atestados,horas_atrasos,horas_improdutivas,indice_absenteismo,status,qtd_trabalhando,qtd_demitido").eq("mes_referencia",month).order("total_horas",{ascending:false}).limit(5000)
-    ]);
-    if(reg.error)throw reg.error;if(areas.error)throw areas.error;
-    absSupabaseRows=(reg.data||[]).map(r=>({cadastro:`${month}-${r.local||""}-${r.colaborador||""}`,nome:r.colaborador||"Não informado",situacao:r.situacao||"",cargo:r.cargo||"",centro:r.local||"Não informado",setor:r.setor||"",faltas:absNum(r.horas_faltas),atestados:absNum(r.horas_atestados),atrasos:absNum(r.horas_atrasos),paternidade:0,total:absNum(r.horas_improdutivas),expected:absNum(r.horas_esperadas),worked:absNum(r.horas_trabalhadas),indice:absNum(r.indice_absenteismo)}));
-    absSupabaseAreas=areas.data||[];absApplyLocalOptions();absSourceMode="supabase";localStorage.setItem("absenteismoSource","supabase");document.getElementById("absSource").value="supabase";absRecalculate();absSetStatus(`${absSupabaseRows.length} registros carregados do Supabase`,"ok");
-  }catch(e){console.error(e);absSetStatus("Erro ao consultar Supabase","err");alert("Não foi possível consultar as tabelas de absenteísmo: "+e.message)}
-}
-function absHandleSourceChange(){absSourceMode=document.getElementById("absSource")?.value||"supabase";localStorage.setItem("absenteismoSource",absSourceMode);if(absSourceMode==="supabase")absLoadSupabase();else{absRows=absUploadRows;absSetStatus(absRows.length?`${absRows.length} cadastros do upload`:"Envie uma planilha",absRows.length?"ok":"");absRecalculate()}}
-function absMonthChange(){if(absSourceMode==="supabase")absLoadSupabase();else absRecalculate()}
-function absHandleFile(event){const file=event.target.files?.[0];if(!file)return;absSetStatus("Lendo planilha...");const ext=file.name.toLowerCase().split(".").pop();const rd=new FileReader();rd.onerror=()=>absSetStatus("Não foi possível ler o arquivo","err");rd.onload=()=>{try{if(ext==="csv"){absLoadMatrix(absReadCSV(rd.result),file.name)}else{if(!window.XLSX)throw new Error("A biblioteca de leitura XLSX ainda não carregou. Recarregue a página e tente novamente.");const wb=XLSX.read(rd.result,{type:"array",cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]];absLoadMatrix(XLSX.utils.sheet_to_json(ws,{header:1,defval:""}),file.name)}}catch(e){absSetStatus("Erro na leitura","err");alert(e.message)}};if(ext==="csv")rd.readAsText(file,"UTF-8");else rd.readAsArrayBuffer(file)}
-function absLoadSample(){absLoadMatrix([
-  absDefaultHeaders,
-  [4532,"ALECSANDRO FERREIRA DE LIMA","2026-05-04","Trabalhando","OPERADOR LOGISTICO I","OUTBOUND CSL01 - MATRIZ","OPERAÇÃO MATRIZ",0,0,0,0,0]
-],"amostra");
-  // A amostra visualiza a funcionalidade; a planilha real deve ser enviada pelo botão de upload.
-  absSetStatus("Amostra carregada — envie a planilha real","");
-}
-function absGetMonth(){let v=document.getElementById("absMonth")?.value||"";let m=v.match(/^(\d{4})-(\d{2})$/);return m?{year:+m[1],month:+m[2]}:{year:new Date().getFullYear(),month:new Date().getMonth()+1}}
-function absHolidaySet(year,month){const set=new Set();const d=document.getElementById("absExtraHolidays")?.value||"";d.split(/[,;\s]+/).forEach(x=>{let m=x.match(/^(\d{1,2})[\/-](\d{1,2})$/);if(m)set.add(`${year}-${String(+m[2]).padStart(2,"0")}-${String(+m[1]).padStart(2,"0")}`)});if(month===5&&document.getElementById("absMayHoliday")?.value!=="nao")set.add(`${year}-05-01`);return set}
-function absBusinessDays(year,month){const h=absHolidaySet(year,month),last=new Date(year,month,0).getDate();let count=0;for(let day=1;day<=last;day++){const d=new Date(year,month-1,day),key=`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;if(d.getDay()!==0&&d.getDay()!==6&&!h.has(key))count++}return count}
 function absFmt(n,digits=2){return Number(n||0).toLocaleString("pt-BR",{minimumFractionDigits:digits,maximumFractionDigits:digits})}
 function absPct(n){return `${absFmt(n,2)}%`}
-function absGroup(key){const map={};absRows.forEach(r=>{const g=r[key]||"Não informado";if(!map[g])map[g]={people:0,hours:0};map[g].people++;map[g].hours+=r.total});return Object.entries(map).map(([name,v])=>({name,...v})).sort((a,b)=>b.hours-a.hours)}
-function absRecalculate(){
-  const {year,month}=absGetMonth(),remote=absSourceMode==="supabase",localFilter=document.getElementById("absLocalFilter")?.value||"";
-  if(remote){
-    absRows=absSupabaseRows.filter(r=>!localFilter||r.centro===localFilter);
-  }else absRows=absUploadRows;
-  if(!absRows.length){document.getElementById("absKpis").innerHTML=`<div class="absKpi"><b>Status</b><strong style="font-size:16px">${remote?"Nenhum registro no Supabase para este filtro":"Envie uma planilha para iniciar"}</strong></div>`;document.getElementById("absReasons").innerHTML="";document.getElementById("absTopPeople").innerHTML="";document.getElementById("absCostCenters").innerHTML="";return}
-  const days=absBusinessDays(year,month),daily=absNum(document.getElementById("absDailyHours")?.value)||8,hc=absRows.length,total=absRows.reduce((s,r)=>s+r.total,0),available=remote?absRows.reduce((s,r)=>s+r.expected,0):hc*days*daily,pct=remote?(available?total/available*100:0):(available?total/available*100:0),reasons=Object.keys(absReasonLabels).map(k=>({key:k,name:absReasonLabels[k],hours:absRows.reduce((s,r)=>s+r[k],0),people:absRows.filter(r=>r[k]>0).length}));
-  document.getElementById("absKpis").innerHTML=[['HC '+(remote?"aprovado":"da planilha"),hc.toLocaleString('pt-BR')],['Dias úteis',remote?"Base do banco":days.toLocaleString('pt-BR')],['Jornada diária',remote?"Calculada no banco":`${absFmt(daily,1)} h`],['Horas esperadas',`${absFmt(available)} h`],['Horas improdutivas',`${absFmt(total)} h`],['Percentual atingido',absPct(pct)]].map(x=>`<div class="absKpi"><b>${x[0]}</b><strong>${x[1]}</strong></div>`).join("");
-  const maxReason=Math.max(...reasons.map(x=>x.hours),1);document.getElementById("absReasons").innerHTML=`<table><thead><tr><th>Motivo</th><th>Horas</th><th>Pessoas</th><th>Participação</th></tr></thead><tbody>${reasons.map(x=>`<tr><td>${x.name}</td><td>${absFmt(x.hours)}</td><td>${x.people}</td><td><div class="absBar"><span style="width:${x.hours/maxReason*100}%"></span></div><small>${absPct(total?x.hours/total*100:0)}</small></td></tr>`).join("")}</tbody></table>`;
-  const top=[...absRows].sort((a,b)=>b.total-a.total).slice(0,10);document.getElementById("absTopPeople").innerHTML=`<table><thead><tr><th>#</th><th>Colaborador</th><th>Horas</th></tr></thead><tbody>${top.map((x,i)=>`<tr><td>${i+1}</td><td>${absEsc(x.nome)}<br><small class="absMuted">${absEsc(x.cargo||x.centro)}</small></td><td><b>${absFmt(x.total)}</b></td></tr>`).join("")}</tbody></table>`;
-  const centers=remote?absSupabaseAreas.filter(x=>!localFilter||x.local===localFilter).slice(0,10).map(x=>({name:`${x.area||"Não informado"} — ${x.local||""}`,people:absNum(x.qtd_trabalhando)+absNum(x.qtd_demitido),hours:absNum(x.horas_improdutivas),index:absNum(x.indice_absenteismo)})):absGroup("centro").slice(0,10);document.getElementById("absCostCenters").innerHTML=`<table><thead><tr><th>${remote?"Área":"Centro de custo"}</th><th>HC</th><th>Horas</th>${remote?"<th>Índice</th>":""}</tr></thead><tbody>${centers.map(x=>`<tr><td>${absEsc(x.name)}</td><td>${x.people}</td><td><b>${absFmt(x.hours)}</b></td>${remote?`<td>${absPct(x.index*100)}</td>`:""}</tr>`).join("")}</tbody></table>`;
-  absRenderHistory({year,month,days,daily,hc,total,available,pct,file:remote?"Supabase":(absFileName||"Planilha"),source:remote?"supabase":"upload",local:localFilter});
-}
+function absSetStatus(text,cls=""){const e=document.getElementById("absStatus"),x=document.getElementById("absExecStatus");if(e){e.textContent=text;e.className="syncStatus execStatus "+cls}if(x){x.textContent=text;x.className="execAbsStatus "+cls}}
+function absParseDate(v){if(v instanceof Date)return v;if(typeof v==="number"&&window.XLSX&&XLSX.SSF){let p=XLSX.SSF.parse_date_code(v);return p?new Date(p.y,p.m-1,p.d):null}let s=String(v??"").trim();if(!s)return null;let m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);let d=new Date(s);return Number.isNaN(d.getTime())?null:d}
+function absKeyForHeader(h){const n=absNorm(h);for(const [key,aliases] of Object.entries(absAliases))if(aliases.includes(n))return key;return ""}
+function absRowsFromMatrix(matrix){if(!matrix?.length)throw new Error("A planilha está vazia.");let headerRow=matrix.findIndex(r=>r.some(c=>absKeyForHeader(c)==="cadastro"||absKeyForHeader(c)==="nome"));if(headerRow<0)headerRow=0;const headers=matrix[headerRow].map(x=>String(x??"")),keys=headers.map(absKeyForHeader),get=(row,key)=>{const i=keys.indexOf(key);return i>=0?row[i]:""},out=[],seen=new Set();matrix.slice(headerRow+1).forEach(row=>{const cadastro=String(get(row,"cadastro")??"").trim(),nome=String(get(row,"nome")??"").trim();if(!cadastro&&!nome)return;const identity=cadastro||nome;if(seen.has(identity))return;seen.add(identity);const motivos={faltas:absNum(get(row,"faltas")),atestados:absNum(get(row,"atestados")),atrasos:absNum(get(row,"atrasos"))},totalCell=get(row,"total"),total=String(totalCell??"").trim()===""?Object.values(motivos).reduce((a,b)=>a+b,0):absNum(totalCell);out.push({cadastro,nome:nome||cadastro,situacao:String(get(row,"situacao")??"").trim(),cargo:String(get(row,"cargo")??"").trim(),centro:String(get(row,"centro")??"").trim()||"Não informado",setor:String(get(row,"setor")??"").trim(),...motivos,total,expected:0,worked:0,monthKey:document.getElementById("absMonth")?.value||""})});if(!out.length)throw new Error("Não encontrei registros válidos. Verifique a coluna Cadastro ou Nome.");return out}
+function absReadCSV(text){const lines=text.replace(/\r/g,"").split("\n").filter(x=>x.trim());if(!lines.length)return [];const sep=(lines[0].match(/;/g)||[]).length>=(lines[0].match(/,/g)||[]).length?";":",";return lines.map(line=>{let a=[],cur="",quoted=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(quoted&&line[i+1]==='"'){cur+='"';i++}else quoted=!quoted}else if(ch===sep&&!quoted){a.push(cur);cur=""}else cur+=ch}a.push(cur);return a.map(x=>x.trim())})}
+function absLoadMatrix(matrix,name="Planilha"){try{absUploadRows=absRowsFromMatrix(matrix);absFileName=name;absSourceMode="upload";absRows=absUploadRows;localStorage.setItem("absenteismoSource","upload");localStorage.setItem("absenteismoRows",JSON.stringify(absUploadRows));localStorage.setItem("absenteismoFile",name);absSetStatus(`${absRows.length} registros do upload` ,"ok");absRenderDashboard()}catch(e){absSetStatus("Erro na planilha","err");alert(e.message)}}
+function absHandleFile(event){const file=event.target.files?.[0];if(!file)return;absSetStatus("Lendo planilha...");const ext=file.name.toLowerCase().split(".").pop(),rd=new FileReader();rd.onerror=()=>absSetStatus("Não foi possível ler o arquivo","err");rd.onload=()=>{try{if(ext==="csv")absLoadMatrix(absReadCSV(rd.result),file.name);else{if(!window.XLSX)throw new Error("A biblioteca XLSX ainda não carregou.");const wb=XLSX.read(rd.result,{type:"array",cellDates:true}),ws=wb.Sheets[wb.SheetNames[0]];absLoadMatrix(XLSX.utils.sheet_to_json(ws,{header:1,defval:""}),file.name)}}catch(e){absSetStatus("Erro na leitura","err");alert(e.message)}};if(ext==="csv")rd.readAsText(file,"UTF-8");else rd.readAsArrayBuffer(file)}
+function absBusinessDays(year,month){let n=0,last=new Date(year,month,0).getDate();for(let d=1;d<=last;d++){const date=new Date(year,month-1,d);if(date.getDay()!==0&&date.getDay()!==6)n++}return n}
+function absPeriod(){const y=+(document.getElementById("absYear")?.value||document.getElementById("yearSelect")?.value||new Date().getFullYear()),v=document.getElementById("absMonth")?.value||`${y}-05`;return {year:y,month:+String(v).slice(-2),key:v}}
+function absAggregate(rows,year,month){const days=absBusinessDays(year,month),daily=absNum(document.getElementById("absDailyHours")?.value)||8,people=rows.length,improd=rows.reduce((s,r)=>s+absNum(r.total),0),expected=rows.reduce((s,r)=>s+absNum(r.expected),0)||(!rows.some(r=>r.expected)?people*days*daily:0),reasons=Object.fromEntries(Object.keys(absReasonLabels).map(k=>[k,rows.reduce((s,r)=>s+absNum(r[k]),0)]));return {people,improd,expected,reasons,pct:expected?improd/expected*100:0,daysAway:daily?improd/daily:0}}
+function absApplyFilters(rows){const local=document.getElementById("absLocalFilter")?.value||"",area=document.getElementById("absAreaFilter")?.value||"";return rows.filter(r=>(!local||r.centro===local)&&(!area||r.setor===area))}
+function absCurrentRows(){const p=absPeriod();if(absSourceMode==="upload")return absApplyFilters(absUploadRows);return absApplyFilters(absSupabaseRows.filter(r=>r.monthKey===p.key))}
+function absMonthlyData(){const p=absPeriod();if(absSourceMode==="upload"){const a=absAggregate(absCurrentRows(),p.year,p.month);return [{key:p.key,month:p.month,aggregate:a}]}const map={};absApplyFilters(absSupabaseRows).forEach(r=>{if(!map[r.monthKey])map[r.monthKey]=[];map[r.monthKey].push(r)});return Object.entries(map).map(([key,rows])=>({key,month:+key.slice(-2),aggregate:absAggregate(rows,p.year,+key.slice(-2))})).sort((a,b)=>a.key.localeCompare(b.key))}
+function absSelectedAreaRows(){const p=absPeriod(),local=document.getElementById("absLocalFilter")?.value||"",area=document.getElementById("absAreaFilter")?.value||"";return absSupabaseAreas.filter(r=>r.mes_referencia===p.key&&(!local||r.local===local)&&(!area||r.area===area))}
+function absPopulateFilters(){const years=[...new Set(absSupabaseRows.map(r=>r.monthKey.slice(0,4)))].filter(Boolean).sort(),yearSelect=document.getElementById("absYear"),yearNow=String(absPeriod().year);yearSelect.innerHTML=(years.length?years:[yearNow]).map(y=>`<option value="${y}">${y}</option>`).join("");yearSelect.value=years.includes(yearNow)?yearNow:(years[0]||yearNow);const monthSelect=document.getElementById("absMonth"),old=monthSelect.value||`${yearSelect.value}-05`;monthSelect.innerHTML=absMonths.map((m,i)=>`<option value="${yearSelect.value}-${String(i+1).padStart(2,"0")}">${m}</option>`).join("");monthSelect.value=old.startsWith(yearSelect.value+"-")?old:`${yearSelect.value}-05`;const locals=[...new Set([...absSupabaseRows.map(r=>r.centro),...absSupabaseAreas.map(r=>r.local)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR")),areas=[...new Set(absSupabaseAreas.map(r=>r.area).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR")),local=document.getElementById("absLocalFilter"),area=document.getElementById("absAreaFilter"),oldLocal=local.value,oldArea=area.value;local.innerHTML='<option value="">Todos os locais</option>'+locals.map(x=>`<option value="${absEsc(x)}">${absEsc(x)}</option>`).join("");area.innerHTML='<option value="">Todas as áreas</option>'+areas.map(x=>`<option value="${absEsc(x)}">${absEsc(x)}</option>`).join("");if(locals.includes(oldLocal))local.value=oldLocal;if(areas.includes(oldArea))area.value=oldArea}
+function absYearChange(){const y=document.getElementById("absYear")?.value;if(y){selectedYear=+y;if(document.getElementById("yearSelect"))document.getElementById("yearSelect").value=y}absLoadSupabase()}
+function absMonthChange(){absRenderDashboard()}
+function absFilterChange(){absRenderDashboard()}
+async function absLoadSupabase(){if(typeof sb==="undefined"){absSetStatus("Supabase indisponível","err");return}const year=+(document.getElementById("absYear")?.value||document.getElementById("yearSelect")?.value||new Date().getFullYear());absSetStatus("Consultando Supabase...");try{const like=`${year}-%`,[reg,areas]=await Promise.all([sb.from("absenteismo_registros").select("mes_referencia,local,colaborador,setor,cargo,situacao,horas_esperadas,horas_trabalhadas,horas_faltas,horas_atestados,horas_atrasos,horas_improdutivas,indice_absenteismo").like("mes_referencia",like).order("mes_referencia").order("colaborador").limit(5000),sb.from("absenteismo_areas").select("mes_referencia,local,area,total_horas,horas_faltas,horas_atestados,horas_atrasos,horas_improdutivas,indice_absenteismo,status,qtd_trabalhando,qtd_demitido").like("mes_referencia",like).order("mes_referencia").order("total_horas",{ascending:false}).limit(5000)]);if(reg.error)throw reg.error;if(areas.error)throw areas.error;absSupabaseRows=(reg.data||[]).map(r=>({monthKey:r.mes_referencia,mes_referencia:r.mes_referencia,nome:r.colaborador||"Não informado",situacao:r.situacao||"",cargo:r.cargo||"",centro:r.local||"Não informado",setor:r.setor||"",faltas:absNum(r.horas_faltas),atestados:absNum(r.horas_atestados),atrasos:absNum(r.horas_atrasos),total:absNum(r.horas_improdutivas),expected:absNum(r.horas_esperadas),worked:absNum(r.horas_trabalhadas),indice:absNum(r.indice_absenteismo)}));absSupabaseAreas=areas.data||[];absSourceMode="supabase";localStorage.setItem("absenteismoSource","supabase");absPopulateFilters();absRenderDashboard();absSetStatus(`${absSupabaseRows.length} registros carregados do Supabase`,"ok")}catch(e){console.error(e);absSetStatus("Erro ao consultar Supabase","err");alert("Não foi possível consultar as tabelas de absenteísmo: "+e.message)}}
+function absHandleSourceChange(){absLoadSupabase()}
+function absDestroyCharts(){Object.values(absCharts).forEach(c=>{try{c.destroy()}catch(e){}});absCharts={}}
+function absChart(id,type,data,options={}){if(!window.Chart)return;const canvas=document.getElementById(id);if(!canvas)return;absCharts[id]=new Chart(canvas.getContext("2d"),{type,data,options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{labels:{boxWidth:10,usePointStyle:true,font:{size:10}}}},scales:type==="doughnut"?{}:{x:{grid:{color:"#e8eef3"},ticks:{font:{size:10},color:"#5d7387"}},y:{grid:{color:"#e8eef3"},ticks:{font:{size:10},color:"#5d7387"},beginAtZero:true}},...options}})}
+function absVariation(current,previous,kind="number"){if(previous==null||!Number.isFinite(previous))return {text:"Sem mês anterior",class:"neutral"};if(!previous)return {text:"Sem base comparável",class:"neutral"};const delta=current-previous,pct=delta/Math.abs(previous)*100,arrow=delta>0?"▲":"▼",cls=kind==="bad"?(delta>0?"down":"up"):(delta>0?"up":"down");return {text:`${arrow} ${absFmt(Math.abs(pct),1)}% vs. mês anterior`,class:cls}}
+function absKpi(label,value,meta,variation){return `<div class="execKpi"><span class="execKpiLabel">${label}</span><strong class="execKpiValue">${value}</strong><span class="execKpiMeta ${variation.class}">${variation.text}</span>${meta?`<span class="execKpiMeta">${meta}</span>`:""}</div>`}
+function absRenderKpis(current,previous){const meta=null,rows=[absKpi("Colaboradores cadastrados",absFmt(current.people,0),"",absVariation(current.people,previous?.people)),absKpi("Horas improdutivas",`${absFmt(current.improd)} h`,"",absVariation(current.improd,previous?.improd,"bad")),absKpi("% de absenteísmo",absPct(current.pct),"",absVariation(current.pct,previous?.pct,"bad")),absKpi("Horas disponíveis",`${absFmt(current.expected)} h`,"",absVariation(current.expected,previous?.expected)),absKpi("Dias de afastamento",absFmt(current.daysAway,1),"Equivalente em horas / jornada",absVariation(current.daysAway,previous?.daysAway,"bad")),absKpi("Meta do mês","Não cadastrada","Configure a meta no Supabase",{text:"Sem parâmetro de meta",class:"neutral"})];document.getElementById("absKpis").innerHTML=rows.join("")}
+function absLinearProjection(values){const pts=values.map((v,i)=>v==null?null:{x:i,y:v}).filter(Boolean);if(pts.length<3)return Array(12).fill(null);const n=pts.length,sx=pts.reduce((a,p)=>a+p.x,0),sy=pts.reduce((a,p)=>a+p.y,0),sxx=pts.reduce((a,p)=>a+p.x*p.x,0),sxy=pts.reduce((a,p)=>a+p.x*p.y,0),slope=(n*sxy-sx*sy)/(n*sxx-sx*sx||1),intercept=(sy-slope*sx)/n,last=pts[pts.length-1].x;return values.map((v,i)=>i>last?Math.max(0,intercept+slope*i):null)}
+function absRenderCharts(currentRows){absDestroyCharts();const p=absPeriod(),monthly=absMonthlyData(),labels=absMonths,monthlyPct=labels.map((_,i)=>{const x=monthly.find(m=>m.month===i+1);return x?Number(x.aggregate.pct.toFixed(2)):null}),monthlyHours=labels.map((_,i)=>{const x=monthly.find(m=>m.month===i+1);return x?Number(x.aggregate.improd.toFixed(2)):null}),projection=absLinearProjection(monthlyHours),realCount=monthlyHours.filter(v=>v!=null).length;document.getElementById("absMetaNote").textContent="Meta não cadastrada nas tabelas do Supabase; a linha de meta não é exibida para evitar valor fictício.";document.getElementById("absProjectionNote").textContent=realCount>=3?"Barras azuis: realizado. Linha tracejada: projeção estatística baseada nos meses disponíveis.":"A projeção será exibida quando houver pelo menos três meses reais disponíveis.";absChart("absTrendPctChart","line",{labels,datasets:[{label:"Absenteísmo (%)",data:monthlyPct,borderColor:"#0b6fbe",backgroundColor:"rgba(11,111,190,.12)",fill:true,tension:.35,pointRadius:4},{label:"Meta (%) — não cadastrada",data:Array(12).fill(null),borderColor:"#ff7a21",borderDash:[6,5],pointRadius:0}]},{scales:{y:{suggestedMin:0,suggestedMax:Math.max(5,...monthlyPct.filter(v=>v!=null),1)}}});const reasons=Object.entries(currentRows.reduce((o,r)=>{Object.keys(absReasonLabels).forEach(k=>o[k]=(o[k]||0)+absNum(r[k]));return o},{})).filter(([,v])=>v>0);absChart("absReasonsChart","doughnut",{labels:reasons.map(([k])=>absReasonLabels[k]),datasets:[{data:reasons.map(([,v])=>Number(v.toFixed(2))),backgroundColor:["#0b6fbe","#ff7a21","#f5b82e","#7f8c98"],borderColor:"#fff",borderWidth:2}]},{cutout:"62%"});const top=[...currentRows].sort((a,b)=>b.total-a.total).slice(0,10).reverse();absChart("absTopChart","bar",{labels:top.map(r=>r.nome||"Não informado"),datasets:[{label:"Horas",data:top.map(r=>Number(r.total.toFixed(2))),backgroundColor:"#ff7a21",borderRadius:4}]},{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}});const areas=absSelectedAreaRows().sort((a,b)=>Number(b.indice_absenteismo)-Number(a.indice_absenteismo)).slice(0,12);absChart("absAreaChart","bar",{labels:areas.map(r=>r.area||r.local),datasets:[{label:"Absenteísmo (%)",data:areas.map(r=>Number((absNum(r.indice_absenteismo)*100).toFixed(2))),backgroundColor:areas.map((_,i)=>i===0?"#ff7a21":"#0b6fbe"),borderRadius:4}]},{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}});absChart("absHoursTrendChart","line",{labels,datasets:[{label:"Realizado (h)",data:monthlyHours,borderColor:"#0b6fbe",backgroundColor:"#0b6fbe",tension:.3,pointRadius:3},{label:"Projeção (h)",data:projection,borderColor:"#9aaabd",backgroundColor:"#9aaabd",borderDash:[6,5],tension:.3,pointRadius:2}]},{scales:{y:{beginAtZero:true}}})}
+function absStatusLabel(raw){const s=absNorm(raw);if(s.includes("crit"))return ["Atenção","alert"];if(s.includes("control")||s.includes("ok"))return ["Controlado","ok"];return [raw||"Sem meta","info"]}
+function absRenderSummary(currentRows){const p=absPeriod(),local=document.getElementById("absLocalFilter")?.value||"",area=document.getElementById("absAreaFilter")?.value||"";let data=absSelectedAreaRows();if(absSourceMode==="upload"){const groups={};currentRows.forEach(r=>{const key=r.centro||"Não informado";if(!groups[key])groups[key]={area:key,local:key,total_horas:0,horas_improdutivas:0,indice_absenteismo:0,qtd_trabalhando:0,qtd_demitido:0,status:""};groups[key].horas_improdutivas+=r.total;groups[key].total_horas+=r.expected;groups[key].qtd_trabalhando++});data=Object.values(groups).map(r=>({...r,indice_absenteismo:r.total_horas?r.horas_improdutivas/r.total_horas:0}))}if(!data.length){document.getElementById("absCostCenters").innerHTML='<div class="execEmpty">Não há áreas cadastradas para este filtro.</div>';return}document.getElementById("absCostCenters").innerHTML=`<table><thead><tr><th>Centro de custo</th><th>Colaboradores</th><th>Horas</th><th>% Absenteísmo</th><th>Meta</th><th>Status</th></tr></thead><tbody>${data.map(r=>{const [label,cls]=absStatusLabel(r.status);const people=absNum(r.qtd_trabalhando)+absNum(r.qtd_demitido);return `<tr><td>${absEsc(r.area||r.local)}</td><td>${people||"—"}</td><td>${absFmt(r.horas_improdutivas)} h</td><td>${absPct(absNum(r.indice_absenteismo)*100)}</td><td>Não cadastrada</td><td><span class="execBadge ${cls}">${absEsc(label)}</span></td></tr>`}).join("")}</tbody></table>`}
+function absRenderActions(current){const reasonTotal=current.improd?current.improd:1,items=[{name:"Absenteísmo total",value:absPct(current.pct),meta:"Não cadastrada",status:"Sem meta cadastrada",cls:"info"},{name:"Horas improdutivas",value:`${absFmt(current.improd)} h`,meta:"—",status:current.improd>0?"Acompanhar":"Controlado",cls:current.improd>0?"warn":"ok"},{name:"% Horas de atestados",value:absPct(current.reasons.atestados/reasonTotal*100),meta:"Não cadastrada",status:"Sem meta cadastrada",cls:"info"},{name:"% Horas de atrasos",value:absPct(current.reasons.atrasos/reasonTotal*100),meta:"Não cadastrada",status:"Sem meta cadastrada",cls:"info"}];document.getElementById("absActions").innerHTML=`<table><thead><tr><th>Indicador</th><th>Atual</th><th>Meta</th><th>Status</th></tr></thead><tbody>${items.map(x=>`<tr><td>${x.name}</td><td><b>${x.value}</b></td><td>${x.meta}</td><td><span class="execBadge ${x.cls}">${x.status}</span></td></tr>`).join("")}</tbody></table>`}
 function absHistory(){try{return JSON.parse(localStorage.getItem("absenteismoHistory")||"[]")}catch(e){return []}}
-function absRenderHistory(current){const h=absHistory();const all=current?[current,...h.filter(x=>!(x.year===current.year&&x.month===current.month))]:h;document.getElementById("absHistoryTable").innerHTML=all.length?`<table><thead><tr><th>Período</th><th>Arquivo</th><th>HC</th><th>Dias úteis</th><th>Horas improdutivas</th><th>Horas disponíveis</th><th>%</th><th>Ação</th></tr></thead><tbody>${all.slice(0,24).map((x,i)=>`<tr><td>${String(x.month).padStart(2,"0")}/${x.year}</td><td>${absEsc(x.file||"")}</td><td>${x.hc}</td><td>${x.days}</td><td>${absFmt(x.total)} h</td><td>${absFmt(x.available)} h</td><td><b>${absPct(x.pct)}</b></td><td><button onclick="absSaveHistory()">Salvar</button></td></tr>`).join("")}</tbody></table>`:'<div class="absMuted">Nenhum mês salvo ainda. Clique em “Salvar” após carregar uma planilha.</div>';window.absCurrent=current}
-function absSaveHistory(){if(!window.absCurrent)return;const c=window.absCurrent;let h=absHistory().filter(x=>!(x.year===c.year&&x.month===c.month));h.unshift(c);localStorage.setItem("absenteismoHistory",JSON.stringify(h.slice(0,24)));absRenderHistory(c);absSetStatus("Mês salvo localmente","ok")}
-function absClearHistory(){if(!confirm("Limpar o histórico mensal salvo neste navegador?"))return;localStorage.removeItem("absenteismoHistory");absRenderHistory(null)}
-function absDownloadCSV(){if(!absRows.length){alert("Não há dados para exportar.");return}const {year,month}=absGetMonth(),remote=absSourceMode==="supabase",days=absBusinessDays(year,month),daily=absNum(absDailyHours.value)||8,hc=absRows.length,total=absRows.reduce((s,r)=>s+r.total,0),available=remote?absRows.reduce((s,r)=>s+r.expected,0):hc*days*daily;let s="indicador;valor\n"+[["periodo",`${String(month).padStart(2,"0")}/${year}`],["fonte",remote?"Supabase":"Upload"],["hc",hc],["dias_uteis",remote?"Base do banco":days],["jornada_diaria_horas",remote?"Base do banco":daily],["horas_esperadas",available],["horas_improdutivas",total],["percentual_improdutividade",available?total/available*100:0],...Object.keys(absReasonLabels).map(k=>[absReasonLabels[k],absRows.reduce((a,r)=>a+r[k],0)])].map(x=>x.join(";")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+s],{type:"text/csv;charset=utf-8"}));a.download=`resumo_absenteismo_${year}_${String(month).padStart(2,"0")}.csv`;a.click()}
-function showView(view){document.querySelectorAll(".viewPanel").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".viewTab").forEach(x=>x.classList.remove("active"));document.getElementById(view==="plano"?"viewPlano":"viewAbsenteismo").classList.add("active");document.getElementById(view==="plano"?"tabPlano":"tabAbsenteismo").classList.add("active");if(view==="absenteismo")absRecalculate()}
-(function loadAbsenteismo(){try{absUploadRows=JSON.parse(localStorage.getItem("absenteismoRows")||"[]");absFileName=localStorage.getItem("absenteismoFile")||"";if(document.getElementById("absSource"))document.getElementById("absSource").value=absSourceMode;absRows=absSourceMode==="upload"?absUploadRows:[];if(absRows.length)absSetStatus(`${absRows.length} cadastros do upload`,"ok")}catch(e){absUploadRows=[];absRows=[]}absRecalculate();window.addEventListener("load",()=>setTimeout(()=>{if(absSourceMode==="supabase")absLoadSupabase()},0))})();
+function absRenderHistory(current){window.absCurrent=current;return current}
+function absSaveHistory(){if(!window.absCurrent)return;const c=window.absCurrent,h=absHistory().filter(x=>!(x.key===c.key));h.unshift(c);localStorage.setItem("absenteismoHistory",JSON.stringify(h.slice(0,24)))}
+function absClearHistory(){localStorage.removeItem("absenteismoHistory")}
+function absDownloadCSV(){const p=absPeriod(),rows=absCurrentRows(),a=absAggregate(rows,p.year,p.month);if(!rows.length){alert("Não há dados para exportar.");return}const lines=[["indicador","valor"],["periodo",p.key],["colaboradores",a.people],["horas_improdutivas",a.improd],["horas_disponiveis",a.expected],["percentual_absenteismo",a.pct],...Object.keys(absReasonLabels).map(k=>[absReasonLabels[k],a.reasons[k]])];const csv=lines.map(x=>x.join(";")).join("\n"),link=document.createElement("a");link.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));link.download=`resumo_absenteismo_${p.key}.csv`;link.click()}
+function absRenderDashboard(){const p=absPeriod(),rows=absCurrentRows(),current=absAggregate(rows,p.year,p.month),series=absMonthlyData(),idx=series.findIndex(x=>x.key===p.key),previous=idx>0?series[idx-1].aggregate:null;absRenderHistory({...current,key:p.key,year:p.year,month:p.month});absRenderKpis(current,previous);absRenderCharts(rows);absRenderSummary(rows);absRenderActions(current)}
+function absRecalculate(){absRenderDashboard()}
+function showView(view){document.querySelectorAll(".viewPanel").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".viewTab").forEach(x=>x.classList.remove("active"));document.getElementById(view==="plano"?"viewPlano":"viewAbsenteismo").classList.add("active");document.getElementById(view==="plano"?"tabPlano":"tabAbsenteismo").classList.add("active");if(view==="absenteismo")absRenderDashboard()}
+(function loadAbsenteismo(){try{absUploadRows=JSON.parse(localStorage.getItem("absenteismoRows")||"[]");absFileName=localStorage.getItem("absenteismoFile")||"";absRows=absUploadRows}catch(e){absUploadRows=[];absRows=[]}absRenderDashboard();window.addEventListener("load",()=>{if(typeof sb!=="undefined"&&absSourceMode==="supabase")absLoadSupabase()})})();
+
 
 const rows=[
 ["OTD",15,97,[100,100,99.09,100,100,100,100,100]],
@@ -543,7 +548,7 @@ async function enter(u){
     syncMsg("Acesso não validado","err");
   }
 }
-async function changeYear(){selectedYear=+yearSelect.value;await loadResults()}
+async function changeYear(){selectedYear=+yearSelect.value;await loadResults();if(document.getElementById("viewAbsenteismo")?.classList.contains("active"))await absLoadSupabase()}
 async function loadAll(){try{let {data,error}=await sb.from("sustentacao_indicadores").select("*").eq("ativo",true).order("ordem");if(error)throw error;indicatorIdMap={};data.forEach(x=>indicatorIdMap[x.nome]=x.id);await loadResults();await loadActions();syncMsg("Sincronizado","ok")}catch(e){syncMsg(e.message,"err")}}
 async function loadResults(){rows.forEach(r=>r[3]=Array(12).fill(null));Object.keys(indicatorDetails).forEach(k=>delete indicatorDetails[k]);let {data,error}=await sb.from("sustentacao_resultados").select("*").eq("ano",selectedYear);if(error)throw error;let names={};Object.entries(indicatorIdMap).forEach(([n,id])=>names[id]=n);data.forEach(x=>{let n=names[x.indicador_id],r=rows.find(z=>z[0]===n);if(r)r[3][x.mes-1]=x.resultado==null?null:+x.resultado;if(!indicatorDetails[n])indicatorDetails[n]={};indicatorDetails[n][x.mes-1]={volumeProduto:x.volume_produto||"",volumeTotal:x.total_processado??"",foraTotal:x.total_fora_meta??"",obs:x.observacao||"",clientes:[],_id:x.id}});let ids=data.map(x=>x.id);if(ids.length){let q=await sb.from("sustentacao_inventarios").select("*").in("resultado_id",ids);if(q.error)throw q.error;let rm={};data.forEach(x=>rm[x.id]=[names[x.indicador_id],x.mes-1]);q.data.forEach(v=>{let z=rm[v.resultado_id];if(z)getDetail(z[0],z[1]).clientes.push({cliente:v.cliente||"",total:v.total_inventariado??"",correto:v.total_correto??"",fora:v.total_divergente??"",resultado:v.resultado_percentual??""})})}render();syncMsg("Ano "+selectedYear+" carregado","ok")}
 function N(v){if(v==null||String(v).trim()==="")return null;let n=Number(String(v).replace("%","").replace(",",".").replace(/[^0-9.-]/g,""));return isNaN(n)?null:n}
