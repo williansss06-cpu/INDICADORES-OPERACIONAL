@@ -70,8 +70,37 @@ footer{background:var(--navy);color:#fff;padding:22px 28px;display:flex;justify-
 @media print{.toolbar{display:none} body{background:white}.wrap{max-width:none} @page{size:A3 landscape;margin:8mm}}
 
 .authOverlay{position:fixed;inset:0;background:#092b4d;z-index:9999;display:flex;align-items:center;justify-content:center}.authBox{width:420px;max-width:92vw;background:#fff;padding:30px;border-radius:16px;border-top:7px solid var(--orange)}.authBox input{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccd7df;border-radius:7px}.authBox button{width:100%}.authError{color:#c00;font-size:12px;font-weight:bold;margin-top:10px}.syncStatus{padding:7px 10px;border-radius:6px;background:#e9eff4;color:#092b4d;font-size:11px;font-weight:bold}.syncStatus.ok{background:#d9f5df;color:#087a35}.syncStatus.err{background:#ffdede;color:#b21818}.yearSelect{padding:8px;border-radius:6px;border:0;font-weight:bold}
+  .viewTabs{display:flex;gap:8px;padding:12px 24px 0;background:#fff;border-bottom:1px solid var(--line)}
+  .viewTab{background:#e9eff4;color:var(--navy);border-radius:8px 8px 0 0;padding:11px 18px;font-weight:800}
+  .viewTab.active{background:var(--orange);color:#fff}
+  .viewPanel{display:none}.viewPanel.active{display:block}
+  .absControls{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px;align-items:end;margin-bottom:14px}
+  .absControls label{font-size:12px;font-weight:800;color:var(--navy)}
+  .absControls input,.absControls select{display:block;width:100%;margin-top:5px;padding:9px;border:1px solid var(--line);border-radius:7px;font:inherit}
+  .absActions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;grid-column:1/-1}
+  .absNote{background:#eef5fa;border-left:4px solid var(--orange);padding:10px 12px;border-radius:6px;font-size:12px;line-height:1.45;margin-bottom:12px}
+  .absKpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+  .absKpi{border:1px solid var(--line);border-radius:9px;padding:12px;background:#fff;min-height:88px}
+  .absKpi b{display:block;color:#667788;font-size:11px;text-transform:uppercase;margin-bottom:7px}
+  .absKpi strong{font-size:23px;color:var(--navy)}
+  .absGrid{display:grid;grid-template-columns:1.1fr 1.1fr .9fr;gap:12px;margin-bottom:16px}
+  .absCard{border:1px solid var(--line);border-radius:9px;padding:12px;background:#fff}
+  .absCard h3{margin:0 0 9px;color:var(--orange);font-size:16px}
+  .absTable{min-width:0}
+  .absTable table{min-width:0}
+  .absTable th{position:static}
+  .absTable td:first-child{text-align:left}
+  .absBar{height:8px;background:#edf1f4;border-radius:8px;overflow:hidden;min-width:70px}
+  .absBar span{display:block;height:100%;background:var(--orange);border-radius:8px}
+  .absMuted{font-size:12px;color:#667788}
+  .absHistory{margin-top:16px}
+  .absHistory table{min-width:760px}
+  .absHistory button{padding:5px 8px;background:#e52020}
+  @media(max-width:1250px){.absKpis{grid-template-columns:repeat(3,1fr)}.absGrid{grid-template-columns:1fr 1fr}}
+  @media(max-width:760px){.viewTabs{padding-left:10px;padding-right:10px}.absControls{grid-template-columns:1fr 1fr}.absKpis{grid-template-columns:repeat(2,1fr)}.absGrid{grid-template-columns:1fr}}
+
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
 <body><div id="authOverlay" class="authOverlay"><div class="authBox"><h2 style="border:0;padding:0">PLANO DE SUSTENTAÇÃO MATRIZ</h2><p>Acesso restrito • Mundial Logistics</p><b>E-mail</b><input id="loginEmail" type="email"><b>Senha</b><input id="loginPassword" type="password"><button onclick="login()">ENTRAR</button><div id="authError" class="authError"></div></div></div>
 <div class="wrap">
 <header>
@@ -88,6 +117,12 @@ footer{background:var(--navy);color:#fff;padding:22px 28px;display:flex;justify-
   <span>Ano: <select id="yearSelect" class="yearSelect" onchange="changeYear()"></select></span><span id="syncStatus" class="syncStatus">Aguardando login</span><button class="secondary" onclick="logout()">Sair</button>
 </div>
 
+<div class="viewTabs">
+  <button id="tabPlano" class="viewTab active" onclick="showView('plano')">Plano de Sustentação</button>
+  <button id="tabAbsenteismo" class="viewTab" onclick="showView('absenteismo')">Análise de Absenteísmo</button>
+</div>
+
+<div id="viewPlano" class="viewPanel active">
 <div class="meta">
  <div class="card"><b>Responsável</b><span>Willian Soares</span></div>
  <div class="card"><b>Polaridade</b><span style="font-size:15px">Atingir as metas propostas em pelo menos 8 itens</span></div>
@@ -122,10 +157,141 @@ footer{background:var(--navy);color:#fff;padding:22px 28px;display:flex;justify-
 </tbody></table></div>
 </section>
 
+</div>
+</div>
+
+<div id="viewAbsenteismo" class="viewPanel">
+  <section>
+    <h2>ANÁLISE DE ABSENTEÍSMO E HORAS IMPRODUTIVAS</h2>
+    <div class="absNote"><b>Fonte principal:</b> os dados são carregados das tabelas <b>absenteismo_registros</b> e <b>absenteismo_areas</b> do Supabase. Nesse modo, o sistema usa as horas esperadas e o índice já calculados no banco. O upload de planilha continua disponível como alternativa; nele, o HC é contado pela própria planilha e o total usa HC × dias úteis × jornada diária.</div>
+    <div class="absControls">
+      <label>Fonte de dados<select id="absSource" onchange="absHandleSourceChange()"><option value="supabase">Supabase</option><option value="upload">Upload de planilha</option></select></label>
+      <label>Mês de referência<input id="absMonth" type="month" value="2026-05" onchange="absMonthChange()"></label>
+      <label>Local<select id="absLocalFilter" onchange="absRecalculate()"><option value="">Todos os locais</option></select></label>
+      <label>Jornada diária (horas)<input id="absDailyHours" type="number" min="0.1" max="24" step="0.1" value="8" onchange="absRecalculate()"></label>
+      <label>Feriados adicionais<input id="absExtraHolidays" type="text" placeholder="dd/mm, dd/mm" onchange="absRecalculate()"></label>
+      <label>Feriado de 1º de maio<select id="absMayHoliday" onchange="absRecalculate()"><option value="sim">Descontar</option><option value="nao">Não descontar</option></select></label>
+      <div class="absActions">
+        <button class="secondary" onclick="absLoadSupabase()">Atualizar do Supabase</button>
+        <label class="fileLabel">Enviar planilha XLSX/CSV<input id="absFile" type="file" accept=".xlsx,.xls,.csv,text/csv" onchange="absHandleFile(event)"></label>
+        <button class="secondary" onclick="absDownloadCSV()">Baixar resumo CSV</button>
+        <button class="secondary" onclick="absClearHistory()">Limpar histórico local</button>
+        <span id="absStatus" class="syncStatus">Aguardando planilha</span>
+      </div>
+    </div>
+    <div id="absKpis" class="absKpis"></div>
+    <div class="absGrid">
+      <div class="absCard"><h3>Indicadores por motivo</h3><div id="absReasons" class="absTable"></div></div>
+      <div class="absCard"><h3>10 principais inflatores</h3><div id="absTopPeople" class="absTable"></div></div>
+      <div class="absCard"><h3>Resumo por centro de custo</h3><div id="absCostCenters" class="absTable"></div></div>
+    </div>
+    <div class="absCard absHistory"><h3>Histórico mensal salvo neste navegador</h3><div id="absHistoryTable" class="absTable"></div></div>
+  </section>
+</div>
+
 <footer><span>PESSOAS QUE FAZEM A DIFERENÇA</span><span>PROCESSOS MAIS EFICIENTES</span><span>SOLUÇÕES QUE GERAM VALOR</span><span>OPERAÇÕES MAIS SUSTENTÁVEIS</span></footer>
 </div>
 <script>
 const months=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+
+/* Aba de análise de absenteísmo */
+let absRows = [];
+let absUploadRows = [];
+let absSupabaseRows = [];
+let absSupabaseAreas = [];
+let absSourceMode = localStorage.getItem("absenteismoSource") || "supabase";
+let absFileName = "";
+const absDefaultHeaders = ["Cadastro","Nome","Admissão","Situação","Descrição Cargo","Descrição (C.Custo)","SETOR","Faltas","Horas Atestados","Atrasos","Paternidade","Total Horas Não Trabalhadas"];
+const absAliases = {
+  cadastro:["cadastro","matricula","matrícula","id"], nome:["nome","colaborador","funcionario","funcionário"], admissao:["admissão","admissao"], situacao:["situação","situacao","status"], cargo:["descrição cargo","descricao cargo","cargo","função","funcao"], centro:["descrição (c.custo)","descricao (c.custo)","centro de custo","centro","ccusto"], setor:["setor"], faltas:["faltas","falta"], atestados:["horas atestados","atestados","hora atestado"], atrasos:["atrasos","atraso"], paternidade:["paternidade"], total:["total horas não trabalhadas","total horas nao trabalhadas","total improdutivas","horas improdutivas","total"]
+};
+const absReasonLabels = {faltas:"Faltas", atestados:"Horas de atestados", atrasos:"Atrasos", paternidade:"Paternidade"};
+function absNorm(v){return String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim()}
+function absNum(v){if(v==null||String(v).trim()==="")return 0;let s=String(v).trim().replace(/\s/g,"");if(s.includes(",")&&s.includes(".")){s=s.lastIndexOf(",")>s.lastIndexOf(".")?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"")}else{s=s.replace(",",".")}s=s.replace(/[^0-9.-]/g,"");let n=Number(s);return Number.isFinite(n)?n:0}
+function absEsc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function absParseDate(v){if(v instanceof Date)return v;if(typeof v==="number"&&window.XLSX&&XLSX.SSF){let p=XLSX.SSF.parse_date_code(v);return p?new Date(p.y,p.m-1,p.d):null}let s=String(v??"").trim();if(!s)return null;let m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);let d=new Date(s);return Number.isNaN(d.getTime())?null:d}
+function absKeyForHeader(h){let n=absNorm(h);for(const [key,aliases] of Object.entries(absAliases)){if(aliases.includes(n))return key}return ""}
+function absRowsFromMatrix(matrix){
+  if(!matrix?.length)throw new Error("A planilha está vazia.");
+  let headerRow=matrix.findIndex(r=>r.some(c=>absKeyForHeader(c)==="cadastro"||absKeyForHeader(c)==="nome"));
+  if(headerRow<0)headerRow=0;
+  const headers=matrix[headerRow].map(x=>String(x??""));
+  const keys=headers.map(absKeyForHeader);
+  const get=(row,key)=>{let i=keys.indexOf(key);return i>=0?row[i]:""};
+  const out=[];const seen=new Set();
+  matrix.slice(headerRow+1).forEach(row=>{
+    const cadastro=String(get(row,"cadastro")??"").trim();const nome=String(get(row,"nome")??"").trim();
+    if(!cadastro&&!nome)return;
+    const identity=cadastro||nome;
+    if(seen.has(identity))return;seen.add(identity);
+    const motivos={faltas:absNum(get(row,"faltas")),atestados:absNum(get(row,"atestados")),atrasos:absNum(get(row,"atrasos")),paternidade:absNum(get(row,"paternidade"))};
+    const totalCell=get(row,"total");const total=String(totalCell??"").trim()===""?Object.values(motivos).reduce((a,b)=>a+b,0):absNum(totalCell);
+    out.push({cadastro,nome:nome||cadastro,admissao:get(row,"admissao"),situacao:String(get(row,"situacao")??"").trim(),cargo:String(get(row,"cargo")??"").trim(),centro:String(get(row,"centro")??"").trim()||"Não informado",setor:String(get(row,"setor")??"").trim(),...motivos,total});
+  });
+  if(!out.length)throw new Error("Não encontrei registros válidos. Verifique a coluna Cadastro ou Nome.");
+  return out;
+}
+function absReadCSV(text){const lines=text.replace(/\r/g,"").split("\n").filter(x=>x.trim());if(!lines.length)return [];const sep=(lines[0].match(/;/g)||[]).length>=(lines[0].match(/,/g)||[]).length?";":",";return lines.map(line=>{let a=[],cur="",quoted=false;for(let i=0;i<line.length;i++){let ch=line[i];if(ch==='"'){if(quoted&&line[i+1]==='"'){cur+='"';i++}else quoted=!quoted}else if(ch===sep&&!quoted){a.push(cur);cur=""}else cur+=ch}a.push(cur);return a.map(x=>x.trim())})}
+function absSetStatus(text,cls=""){const e=document.getElementById("absStatus");if(!e)return;e.textContent=text;e.className="syncStatus "+cls}
+function absLoadMatrix(matrix,name="Planilha"){
+  try{absUploadRows=absRowsFromMatrix(matrix);absFileName=name;localStorage.setItem("absenteismoRows",JSON.stringify(absUploadRows));localStorage.setItem("absenteismoFile",name);absSourceMode="upload";localStorage.setItem("absenteismoSource","upload");document.getElementById("absSource").value="upload";absRows=absUploadRows;absSetStatus(`${absRows.length} cadastros carregados do upload`,"ok");absRecalculate()}catch(e){absSetStatus("Erro na planilha","err");alert(e.message)}
+}
+function absApplyLocalOptions(){
+  const select=document.getElementById("absLocalFilter");if(!select)return;
+  const locals=[...new Set((absSupabaseRows||[]).map(r=>r.local).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  const current=select.value;select.innerHTML='<option value="">Todos os locais</option>'+locals.map(x=>`<option value="${absEsc(x)}">${absEsc(x)}</option>`).join("");if(locals.includes(current))select.value=current;
+}
+async function absLoadSupabase(){
+  if(typeof sb==="undefined"){absSetStatus("Supabase ainda não está disponível","err");return}
+  const month=document.getElementById("absMonth")?.value||"";if(!month){absSetStatus("Informe o mês","err");return}
+  absSetStatus("Consultando Supabase...");
+  try{
+    const [reg,areas]=await Promise.all([
+      sb.from("absenteismo_registros").select("mes_referencia,local,colaborador,setor,cargo,situacao,horas_esperadas,horas_trabalhadas,horas_faltas,horas_atestados,horas_atrasos,horas_improdutivas,indice_absenteismo").eq("mes_referencia",month).order("colaborador").limit(5000),
+      sb.from("absenteismo_areas").select("mes_referencia,local,area,total_horas,horas_faltas,horas_atestados,horas_atrasos,horas_improdutivas,indice_absenteismo,status,qtd_trabalhando,qtd_demitido").eq("mes_referencia",month).order("total_horas",{ascending:false}).limit(5000)
+    ]);
+    if(reg.error)throw reg.error;if(areas.error)throw areas.error;
+    absSupabaseRows=(reg.data||[]).map(r=>({cadastro:`${month}-${r.local||""}-${r.colaborador||""}`,nome:r.colaborador||"Não informado",situacao:r.situacao||"",cargo:r.cargo||"",centro:r.local||"Não informado",setor:r.setor||"",faltas:absNum(r.horas_faltas),atestados:absNum(r.horas_atestados),atrasos:absNum(r.horas_atrasos),paternidade:0,total:absNum(r.horas_improdutivas),expected:absNum(r.horas_esperadas),worked:absNum(r.horas_trabalhadas),indice:absNum(r.indice_absenteismo)}));
+    absSupabaseAreas=areas.data||[];absApplyLocalOptions();absSourceMode="supabase";localStorage.setItem("absenteismoSource","supabase");document.getElementById("absSource").value="supabase";absRecalculate();absSetStatus(`${absSupabaseRows.length} registros carregados do Supabase`,"ok");
+  }catch(e){console.error(e);absSetStatus("Erro ao consultar Supabase","err");alert("Não foi possível consultar as tabelas de absenteísmo: "+e.message)}
+}
+function absHandleSourceChange(){absSourceMode=document.getElementById("absSource")?.value||"supabase";localStorage.setItem("absenteismoSource",absSourceMode);if(absSourceMode==="supabase")absLoadSupabase();else{absRows=absUploadRows;absSetStatus(absRows.length?`${absRows.length} cadastros do upload`:"Envie uma planilha",absRows.length?"ok":"");absRecalculate()}}
+function absMonthChange(){if(absSourceMode==="supabase")absLoadSupabase();else absRecalculate()}
+function absHandleFile(event){const file=event.target.files?.[0];if(!file)return;absSetStatus("Lendo planilha...");const ext=file.name.toLowerCase().split(".").pop();const rd=new FileReader();rd.onerror=()=>absSetStatus("Não foi possível ler o arquivo","err");rd.onload=()=>{try{if(ext==="csv"){absLoadMatrix(absReadCSV(rd.result),file.name)}else{if(!window.XLSX)throw new Error("A biblioteca de leitura XLSX ainda não carregou. Recarregue a página e tente novamente.");const wb=XLSX.read(rd.result,{type:"array",cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]];absLoadMatrix(XLSX.utils.sheet_to_json(ws,{header:1,defval:""}),file.name)}}catch(e){absSetStatus("Erro na leitura","err");alert(e.message)}};if(ext==="csv")rd.readAsText(file,"UTF-8");else rd.readAsArrayBuffer(file)}
+function absLoadSample(){absLoadMatrix([
+  absDefaultHeaders,
+  [4532,"ALECSANDRO FERREIRA DE LIMA","2026-05-04","Trabalhando","OPERADOR LOGISTICO I","OUTBOUND CSL01 - MATRIZ","OPERAÇÃO MATRIZ",0,0,0,0,0]
+],"amostra");
+  // A amostra visualiza a funcionalidade; a planilha real deve ser enviada pelo botão de upload.
+  absSetStatus("Amostra carregada — envie a planilha real","");
+}
+function absGetMonth(){let v=document.getElementById("absMonth")?.value||"";let m=v.match(/^(\d{4})-(\d{2})$/);return m?{year:+m[1],month:+m[2]}:{year:new Date().getFullYear(),month:new Date().getMonth()+1}}
+function absHolidaySet(year,month){const set=new Set();const d=document.getElementById("absExtraHolidays")?.value||"";d.split(/[,;\s]+/).forEach(x=>{let m=x.match(/^(\d{1,2})[\/-](\d{1,2})$/);if(m)set.add(`${year}-${String(+m[2]).padStart(2,"0")}-${String(+m[1]).padStart(2,"0")}`)});if(month===5&&document.getElementById("absMayHoliday")?.value!=="nao")set.add(`${year}-05-01`);return set}
+function absBusinessDays(year,month){const h=absHolidaySet(year,month),last=new Date(year,month,0).getDate();let count=0;for(let day=1;day<=last;day++){const d=new Date(year,month-1,day),key=`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;if(d.getDay()!==0&&d.getDay()!==6&&!h.has(key))count++}return count}
+function absFmt(n,digits=2){return Number(n||0).toLocaleString("pt-BR",{minimumFractionDigits:digits,maximumFractionDigits:digits})}
+function absPct(n){return `${absFmt(n,2)}%`}
+function absGroup(key){const map={};absRows.forEach(r=>{const g=r[key]||"Não informado";if(!map[g])map[g]={people:0,hours:0};map[g].people++;map[g].hours+=r.total});return Object.entries(map).map(([name,v])=>({name,...v})).sort((a,b)=>b.hours-a.hours)}
+function absRecalculate(){
+  const {year,month}=absGetMonth(),remote=absSourceMode==="supabase";
+  if(remote){
+    const local=document.getElementById("absLocalFilter")?.value||"";absRows=absSupabaseRows.filter(r=>!local||r.centro===local);
+  }else absRows=absUploadRows;
+  if(!absRows.length){document.getElementById("absKpis").innerHTML=`<div class="absKpi"><b>Status</b><strong style="font-size:16px">${remote?"Nenhum registro no Supabase para este filtro":"Envie uma planilha para iniciar"}</strong></div>`;document.getElementById("absReasons").innerHTML="";document.getElementById("absTopPeople").innerHTML="";document.getElementById("absCostCenters").innerHTML="";return}
+  const days=absBusinessDays(year,month),daily=absNum(document.getElementById("absDailyHours")?.value)||8,hc=absRows.length,total=absRows.reduce((s,r)=>s+r.total,0),available=remote?absRows.reduce((s,r)=>s+r.expected,0):hc*days*daily,pct=remote?(available?total/available*100:0):(available?total/available*100:0),reasons=Object.keys(absReasonLabels).map(k=>({key:k,name:absReasonLabels[k],hours:absRows.reduce((s,r)=>s+r[k],0),people:absRows.filter(r=>r[k]>0).length}));
+  document.getElementById("absKpis").innerHTML=[['HC '+(remote?"do Supabase":"da planilha"),hc.toLocaleString('pt-BR')],['Dias úteis',remote?"Base do banco":days.toLocaleString('pt-BR')],['Jornada diária',remote?"Calculada no banco":`${absFmt(daily,1)} h`],['Horas esperadas',`${absFmt(available)} h`],['Horas improdutivas',`${absFmt(total)} h`],['Percentual atingido',absPct(pct)]].map(x=>`<div class="absKpi"><b>${x[0]}</b><strong>${x[1]}</strong></div>`).join("");
+  const maxReason=Math.max(...reasons.map(x=>x.hours),1);document.getElementById("absReasons").innerHTML=`<table><thead><tr><th>Motivo</th><th>Horas</th><th>Pessoas</th><th>Participação</th></tr></thead><tbody>${reasons.map(x=>`<tr><td>${x.name}</td><td>${absFmt(x.hours)}</td><td>${x.people}</td><td><div class="absBar"><span style="width:${x.hours/maxReason*100}%"></span></div><small>${absPct(total?x.hours/total*100:0)}</small></td></tr>`).join("")}</tbody></table>`;
+  const top=[...absRows].sort((a,b)=>b.total-a.total).slice(0,10);document.getElementById("absTopPeople").innerHTML=`<table><thead><tr><th>#</th><th>Colaborador</th><th>Horas</th></tr></thead><tbody>${top.map((x,i)=>`<tr><td>${i+1}</td><td>${absEsc(x.nome)}<br><small class="absMuted">${absEsc(x.cargo||x.centro)}</small></td><td><b>${absFmt(x.total)}</b></td></tr>`).join("")}</tbody></table>`;
+  const centers=remote?absSupabaseAreas.filter(x=>!local||x.local===local).slice(0,10).map(x=>({name:`${x.area||"Não informado"} — ${x.local||""}`,people:absNum(x.qtd_trabalhando)+absNum(x.qtd_demitido),hours:absNum(x.horas_improdutivas),index:absNum(x.indice_absenteismo)})):absGroup("centro").slice(0,10);document.getElementById("absCostCenters").innerHTML=`<table><thead><tr><th>${remote?"Área":"Centro de custo"}</th><th>HC</th><th>Horas</th>${remote?"<th>Índice</th>":""}</tr></thead><tbody>${centers.map(x=>`<tr><td>${absEsc(x.name)}</td><td>${x.people}</td><td><b>${absFmt(x.hours)}</b></td>${remote?`<td>${absPct(x.index*100)}</td>`:""}</tr>`).join("")}</tbody></table>`;
+  absRenderHistory({year,month,days,daily,hc,total,available,pct,file:remote?"Supabase":(absFileName||"Planilha"),source:remote?"supabase":"upload",local:document.getElementById("absLocalFilter")?.value||""});
+}
+function absHistory(){try{return JSON.parse(localStorage.getItem("absenteismoHistory")||"[]")}catch(e){return []}}
+function absRenderHistory(current){const h=absHistory();const all=current?[current,...h.filter(x=>!(x.year===current.year&&x.month===current.month))]:h;document.getElementById("absHistoryTable").innerHTML=all.length?`<table><thead><tr><th>Período</th><th>Arquivo</th><th>HC</th><th>Dias úteis</th><th>Horas improdutivas</th><th>Horas disponíveis</th><th>%</th><th>Ação</th></tr></thead><tbody>${all.slice(0,24).map((x,i)=>`<tr><td>${String(x.month).padStart(2,"0")}/${x.year}</td><td>${absEsc(x.file||"")}</td><td>${x.hc}</td><td>${x.days}</td><td>${absFmt(x.total)} h</td><td>${absFmt(x.available)} h</td><td><b>${absPct(x.pct)}</b></td><td><button onclick="absSaveHistory()">Salvar</button></td></tr>`).join("")}</tbody></table>`:'<div class="absMuted">Nenhum mês salvo ainda. Clique em “Salvar” após carregar uma planilha.</div>';window.absCurrent=current}
+function absSaveHistory(){if(!window.absCurrent)return;const c=window.absCurrent;let h=absHistory().filter(x=>!(x.year===c.year&&x.month===c.month));h.unshift(c);localStorage.setItem("absenteismoHistory",JSON.stringify(h.slice(0,24)));absRenderHistory(c);absSetStatus("Mês salvo localmente","ok")}
+function absClearHistory(){if(!confirm("Limpar o histórico mensal salvo neste navegador?"))return;localStorage.removeItem("absenteismoHistory");absRenderHistory(null)}
+function absDownloadCSV(){if(!absRows.length){alert("Não há dados para exportar.");return}const {year,month}=absGetMonth(),remote=absSourceMode==="supabase",days=absBusinessDays(year,month),daily=absNum(absDailyHours.value)||8,hc=absRows.length,total=absRows.reduce((s,r)=>s+r.total,0),available=remote?absRows.reduce((s,r)=>s+r.expected,0):hc*days*daily;let s="indicador;valor\n"+[["periodo",`${String(month).padStart(2,"0")}/${year}`],["fonte",remote?"Supabase":"Upload"],["hc",hc],["dias_uteis",remote?"Base do banco":days],["jornada_diaria_horas",remote?"Base do banco":daily],["horas_esperadas",available],["horas_improdutivas",total],["percentual_improdutividade",available?total/available*100:0],...Object.keys(absReasonLabels).map(k=>[absReasonLabels[k],absRows.reduce((a,r)=>a+r[k],0)])].map(x=>x.join(";")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+s],{type:"text/csv;charset=utf-8"}));a.download=`resumo_absenteismo_${year}_${String(month).padStart(2,"0")}.csv`;a.click()}
+function showView(view){document.querySelectorAll(".viewPanel").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".viewTab").forEach(x=>x.classList.remove("active"));document.getElementById(view==="plano"?"viewPlano":"viewAbsenteismo").classList.add("active");document.getElementById(view==="plano"?"tabPlano":"tabAbsenteismo").classList.add("active");if(view==="absenteismo")absRecalculate()}
+(function loadAbsenteismo(){try{absUploadRows=JSON.parse(localStorage.getItem("absenteismoRows")||"[]");absFileName=localStorage.getItem("absenteismoFile")||"";if(document.getElementById("absSource"))document.getElementById("absSource").value=absSourceMode;absRows=absSourceMode==="upload"?absUploadRows:[];if(absRows.length)absSetStatus(`${absRows.length} cadastros do upload`,"ok")}catch(e){absUploadRows=[];absRows=[]}absRecalculate();window.addEventListener("load",()=>setTimeout(()=>{if(absSourceMode==="supabase")absLoadSupabase()},0))})();
+
 const rows=[
 ["OTD",15,97,[100,100,99.09,100,100,100,100,100]],
 ["OTIF",20,97,[99,99,99.3,97,97.3,97.2,97.8,97.9]],
@@ -368,7 +534,7 @@ async function enter(u){
     authOverlay.style.display="none";
     years();
     syncMsg("Carregando...");
-    await loadAll();
+    await loadAll(); if(absSourceMode==="supabase") await absLoadSupabase();
   }catch(e){
     console.error(e);
     await sb.auth.signOut();
