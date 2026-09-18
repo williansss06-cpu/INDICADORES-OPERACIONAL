@@ -421,9 +421,23 @@ const lowerBetter=new Set(["Divergência Estoque","Frete vs Tabela (menor)"]);
 function operationStorageKey(base){return `${base}:${activeOperationCode||"MATRIZ"}`}
 function operationDisplayName(){return operations.find(x=>x.codigo===activeOperationCode)?.nome||(activeOperationCode==="GLP_ACHE"?"GLP – Operação Aché":"Plano de Sustentação Matriz")}
 function operationShortName(){return activeOperationCode==="GLP_ACHE"?"GLP – Operação Aché":"MATRIZ"}
-function fmt(v){return (v===null||v===""||isNaN(v))?"-":Number(v).toLocaleString("pt-BR",{maximumFractionDigits:2})+"%"}
-function fmtMeta(name,v){return activeOperationCode==="GLP_ACHE"&&name==="Avarias Valor"?Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):Number(v||0).toLocaleString("pt-BR",{maximumFractionDigits:2})+"%"}
-function fmtValue(name,v){return activeOperationCode==="GLP_ACHE"&&name==="Avarias Valor"&&v!==null&&v!==""&&!isNaN(v)?Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):fmt(v)}
+function indicatorValueType(name){
+ if(activeOperationCode!=="GLP_ACHE")return "PERCENT";
+ if(name==="Avarias Valor")return "CURRENCY";
+ if(name==="Ocorrências Monitoramento"||name==="Avarias Unidades")return "NUMBER";
+ return "PERCENT";
+}
+function formatIndicatorValue(name,v,empty="-"){
+ if(v===null||v===undefined||v==="")return empty;
+ const n=Number(v);if(!Number.isFinite(n))return empty;
+ const type=indicatorValueType(name);
+ if(type==="CURRENCY")return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+ if(type==="NUMBER")return n.toLocaleString("pt-BR",{maximumFractionDigits:2});
+ return n.toLocaleString("pt-BR",{maximumFractionDigits:2})+"%";
+}
+function fmt(v){return formatIndicatorValue("__generic__",v)}
+function fmtMeta(name,v){return formatIndicatorValue(name,(v===null||v===undefined||v==="")?0:v,"0")}
+function fmtValue(name,v){return formatIndicatorValue(name,v)}
 function cellClass(name,val,goal){
  if(val===null||val===""||isNaN(val)) return "";
  let ok=(indicatorMeta[name]?.polaridade==="MENOR"||(!indicatorMeta[name]&&lowerBetter.has(name)))?val<=goal:val>=goal;
@@ -557,10 +571,10 @@ function updateSummary(){
  if(selected.length<4) selected=highs.slice(0,4);
  document.getElementById("highlights").innerHTML=
    `<div style="font-weight:800;margin-bottom:9px">${months[mi].toUpperCase()}</div><div class="summaryKpis">`+
-   selected.map(x=>`<div class="kpiMini"><div class="value">${fmt(x.value)}</div><div class="name">${x.name.replace(" (menor)","")}</div><div class="goal">Meta: ${x.goal}%</div><span class="badge">✓ Acima da meta</span></div>`).join("")+
+   selected.map(x=>`<div class="kpiMini"><div class="value">${fmtValue(x.name,x.value)}</div><div class="name">${x.name.replace(" (menor)","")}</div><div class="goal">Meta: ${fmtMeta(x.name,x.goal)}</div><span class="badge">✓ Acima da meta</span></div>`).join("")+
    `</div>`;
  document.getElementById("alerts").innerHTML=alerts.length?
-   alerts.slice(0,3).map(x=>`<div class="alertLine"><span class="summaryIcon ${x.cls==="bad"?"badbg":"warnbg"}">${x.cls==="bad"?"!":"!"}</span><div><b>${x.name}: <span class="${x.cls==="bad"?"critical":"attention"}">${fmt(x.value)}</span></b><small>Meta: ${x.goal}%</small></div></div>`).join("")
+   alerts.slice(0,3).map(x=>`<div class="alertLine"><span class="summaryIcon ${x.cls==="bad"?"badbg":"warnbg"}">${x.cls==="bad"?"!":"!"}</span><div><b>${x.name}: <span class="${x.cls==="bad"?"critical":"attention"}">${fmtValue(x.name,x.value)}</span></b><small>Meta: ${fmtMeta(x.name,x.goal)}</small></div></div>`).join("")
    :`<div class="summaryLine"><span class="summaryIcon okbg">✓</span><span class="ok">Sem desvios no mês.</span></div>`;
 }
 function parseCSV(text){
