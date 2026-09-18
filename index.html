@@ -177,7 +177,7 @@ footer{background:var(--navy);color:#fff;padding:22px 28px;display:flex;justify-
 <div class="toolbar">
   <label class="fileLabel">Importar mês (CSV)<input id="csvFile" type="file" accept=".csv,text/csv"></label>
   <button onclick="downloadTemplate()">Baixar modelo CSV</button>
-  <button class="secondary" onclick="saveSupabase()">Salvar no Supabase</button>
+  <button class="secondary" onclick="saveSupabase()" title="As alterações já são salvas automaticamente; use este botão apenas para forçar uma gravação agora.">Salvar agora</button>
   <button class="secondary" onclick="window.print()">Exportar / Imprimir PDF</button>
   <span>Ano: <select id="yearSelect" class="yearSelect" onchange="changeYear()"></select></span><span id="syncStatus" class="syncStatus">Aguardando login</span><button class="secondary" onclick="logout()">Sair</button>
 </div>
@@ -373,6 +373,28 @@ let operations=[];
 let indicatorIdMap={};
 let indicatorMeta={};
 let operationLoadToken=0;
+let autoSaveTimer=null;
+let autoSaveInFlight=false;
+let autoSaveQueued=false;
+let autoSaveSuppressed=false;
+let autoSaveDirtyKeys=new Set();
+let autoSaveDirtyAll=false;
+function markAutoSaveDirty(kind,name,month){autoSaveDirtyKeys.add(`${kind}:${name}:${month}`)}
+function scheduleAutoSave(reason="alteração"){
+ if(autoSaveSuppressed||!activeOperationId||!window.usuarioSustentacao)return;
+ clearTimeout(autoSaveTimer);
+ syncMsg("Alterações pendentes — salvando automaticamente...","warn");
+ autoSaveTimer=setTimeout(()=>runAutoSave(reason),900);
+}
+async function runAutoSave(reason="alteração"){
+ if(autoSaveInFlight){autoSaveQueued=true;return}
+ autoSaveInFlight=true;
+ try{await saveSupabase({silent:true,reason})}
+ finally{
+  autoSaveInFlight=false;
+  if(autoSaveQueued){autoSaveQueued=false;scheduleAutoSave("alterações pendentes")}
+ }
+}
 const slaNeologIndicators=[
  {name:"Acuracidade inventário",type:"PONTOS"},
  {name:"Segurança e BPDA",type:"PONTOS"},
@@ -388,12 +410,12 @@ let slaNeologValues={};
 function slaResetValues(){slaNeologValues={};slaNeologIndicators.forEach(x=>{slaNeologValues[x.name]=Array(12).fill(null)})}
 slaResetValues();
 function slaFormatValue(value,type){if(value===null||value===undefined||value===""||Number.isNaN(Number(value)))return "—";const n=Number(value);if(type==="MOEDA")return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});return n.toLocaleString("pt-BR",{maximumFractionDigits:2})}
-function slaParseValue(raw){let s=String(raw??"").trim();if(!s)return null;s=s.replace(/R\$/g,"").replace(/\s/g,"").replace(/\./g,"").replace(/,/g,".").replace(/[^0-9+\-.]/g,"");const n=Number(s);return Number.isFinite(n)?n:null}
+function slaParseValue(raw){let s=String(raw??"").trim();if(!s||s==="—"||s==="-")return null;s=s.replace(/R\$/g,"").replace(/\s/g,"").replace(/\./g,"").replace(/,/g,".").replace(/[^0-9+\-.]/g,"");if(!s||s==="-")return null;const n=Number(s);return Number.isFinite(n)?n:null}
 function slaAccumulated(name,type){const values=(slaNeologValues[name]||[]).filter(v=>v!==null&&v!==undefined&&v!=="").map(Number).filter(Number.isFinite);return values.length?values.reduce((a,b)=>a+b,0):null}
 function slaFinalMonth(month){const values=slaNeologIndicators.filter(x=>!x.final&&x.type==="PONTOS").map(x=>slaNeologValues[x.name]?.[month]).filter(v=>v!==null&&v!==undefined&&v!=="").map(Number).filter(Number.isFinite);return values.length?values.reduce((a,b)=>a+b,0):null}
 function slaFinalAccumulated(){const values=slaNeologIndicators.filter(x=>!x.final&&x.type==="PONTOS").flatMap(x=>slaNeologValues[x.name]||[]).filter(v=>v!==null&&v!==undefined&&v!=="").map(Number).filter(Number.isFinite);return values.length?values.reduce((a,b)=>a+b,0):null}
 function slaUpdateDerived(){document.querySelectorAll("#slaNeologTable .slaAccumulated").forEach(cell=>{const name=cell.dataset.name;const item=slaNeologIndicators.find(x=>x.name===name);if(item)cell.textContent=slaFormatValue(item.final?slaFinalAccumulated():slaAccumulated(name,item.type),item.type)}) ;for(let m=0;m<12;m++){const cell=document.querySelector(`#slaNeologTable td.slaFinalCell[data-month=\"${m}\"]`);if(cell)cell.textContent=slaFormatValue(slaFinalMonth(m),"PONTOS")}}
-function updateSlaNeolog(name,month,raw){const item=slaNeologIndicators.find(x=>x.name===name);if(!item||item.final)return;slaNeologValues[name][month]=slaParseValue(raw);slaUpdateDerived()}
+function updateSlaNeolog(name,month,raw){const item=slaNeologIndicators.find(x=>x.name===name);if(!item||item.final)return;slaNeologValues[name][month]=slaParseValue(raw);slaUpdateDerived();scheduleAutoSave("pontuação SLA Neolog")}
 function renderSlaNeolog(){const section=document.getElementById("slaNeologSection"),tb=document.querySelector("#slaNeologTable tbody");if(!section||!tb)return;const visible=activeOperationCode==="GLP_ACHE";section.hidden=!visible;if(!visible){tb.innerHTML="";return}tb.innerHTML="";slaNeologIndicators.forEach(item=>{const tr=document.createElement("tr");if(item.final)tr.className="slaSpecial";const typeHint=item.type==="MOEDA"?"R$":item.type==="UNIDADES"?"unidades":"pontos";const first=`<td><b>${esc(item.name)}</b><span class=\"slaTypeHint\">${item.final?"consolidado":typeHint}</span></td>`;const cells=months.map((m,i)=>{const value=item.final?slaFinalMonth(i):slaNeologValues[item.name]?.[i];const edit=item.final?` class=\"slaFinalCell\" data-month=\"${i}\"`:` class=\"slaEditable\" contenteditable=\"true\" data-name=\"${esc(item.name)}\" data-month=\"${i}\" oninput=\"updateSlaNeolog('${item.name.replace(/'/g,"\\'")}',${i},this.innerText)\"`;return `<td${edit}>${slaFormatValue(value,item.type)}</td>`}).join("");const accumulated=item.final?null:slaAccumulated(item.name,item.type);tr.innerHTML=first+cells+`<td class=\"slaAccumulated\" data-name=\"${esc(item.name)}\">${slaFormatValue(accumulated,item.type)}</td>`;tb.appendChild(tr)});slaUpdateDerived()}
 const lowerBetter=new Set(["Divergência Estoque","Frete vs Tabela (menor)"]);
 function operationStorageKey(base){return `${base}:${activeOperationCode||"MATRIZ"}`}
@@ -453,7 +475,7 @@ function monthDetailHTML(name,mi){
  </div>`;
 }
 function saveDetails(){localStorage.setItem(operationStorageKey("indicatorDetailsMonthly"),JSON.stringify(indicatorDetails))}
-function updateDetail(name,mi,key,value){getDetail(name,mi)[key]=value;saveDetails()}
+function updateDetail(name,mi,key,value){getDetail(name,mi)[key]=value;saveDetails();markAutoSaveDirty("detail",name,mi);scheduleAutoSave("detalhamento")}
 function toggleIndicatorDetail(btn){
  const detail=btn.closest("tr").nextElementSibling;
  detail.classList.toggle("open");
@@ -469,10 +491,10 @@ function showDetailMonth(name,mi,btn){
 function addClient(name,mi){
  const d=getDetail(name,mi); if(!d.clientes)d.clientes=[];
  d.clientes.push({cliente:"",total:"",correto:"",fora:"",resultado:""});
- saveDetails(); refreshDetailMonth(name,mi);
+ saveDetails(); markAutoSaveDirty("detail",name,mi); refreshDetailMonth(name,mi); scheduleAutoSave("inventário");
 }
-function updateClient(name,mi,i,key,value){getDetail(name,mi).clientes[i][key]=value;saveDetails()}
-function removeClient(name,mi,i){getDetail(name,mi).clientes.splice(i,1);saveDetails();refreshDetailMonth(name,mi)}
+function updateClient(name,mi,i,key,value){getDetail(name,mi).clientes[i][key]=value;saveDetails();markAutoSaveDirty("detail",name,mi);scheduleAutoSave("inventário")}
+function removeClient(name,mi,i){getDetail(name,mi).clientes.splice(i,1);saveDetails();markAutoSaveDirty("detail",name,mi);refreshDetailMonth(name,mi);scheduleAutoSave("inventário")}
 function refreshDetailMonth(name,mi){
  const row=[...document.querySelectorAll(".detailRow")].find(x=>x.dataset.indicator===name);
  if(row){
@@ -504,9 +526,15 @@ function render(){
    dtr.innerHTML=`<td colspan="15" class="detailCell">${detailHTML(r[0])}</td>`;
    tb.appendChild(dtr);
  });
- document.querySelectorAll("#kpiTable td[contenteditable]").forEach(td=>td.onblur=()=>{
-   let txt=td.innerText.replace("%","").replace(",",".").trim(), rr=rows.find(x=>x[0]===td.dataset.r);
-   rr[3][+td.dataset.i]=txt===""||txt==="-"?null:parseFloat(txt); render(); saveLocal(false);
+ document.querySelectorAll("#kpiTable td[contenteditable]").forEach(td=>{
+   td.addEventListener("input",()=>{
+     let txt=td.innerText.replace("%","").replace(",",".").trim(), rr=rows.find(x=>x[0]===td.dataset.r);
+     if(rr){rr[3][+td.dataset.i]=txt===""||txt==="-"?null:parseFloat(txt);saveLocal(false);markAutoSaveDirty("result",td.dataset.r,+td.dataset.i);scheduleAutoSave("resultado mensal")}
+   });
+   td.onblur=()=>{
+     let txt=td.innerText.replace("%","").replace(",",".").trim(), rr=rows.find(x=>x[0]===td.dataset.r);
+     if(rr)rr[3][+td.dataset.i]=txt===""||txt==="-"?null:parseFloat(txt); markAutoSaveDirty("result",td.dataset.r,+td.dataset.i); render(); saveLocal(false); scheduleAutoSave("resultado mensal");
+   };
  });
  updateSummary();
 }
@@ -546,7 +574,7 @@ function parseCSV(text){
    let mi=months.indexOf((x[m]||"").toLowerCase()), rr=rows.find(r=>r[0].toLowerCase()===(x[ind]||"").toLowerCase());
    if(mi>=0&&rr) rr[3][mi]=parseFloat((x[val]||"").replace("%","").replace(",","."));
  });
- render(); saveLocal(false);
+ render(); saveLocal(false); autoSaveDirtyAll=true; scheduleAutoSave("importação CSV");
 }
 document.getElementById("csvFile").onchange=e=>{let f=e.target.files[0];if(!f)return;let rd=new FileReader();rd.onload=()=>{try{parseCSV(rd.result)}catch(err){alert(err.message)}};rd.readAsText(f,"UTF-8")};
 function downloadTemplate(){
@@ -576,15 +604,15 @@ function addActionRow(){
  tb.appendChild(tr);
  renumberActions();
  tr.cells[1].focus();
- saveLocal(false);
+ saveLocal(false); scheduleAutoSave("novo plano de ação");
 }
 function deleteActionRow(btn){
  if(!confirm("Deseja excluir esta linha do plano de ação?")) return;
  btn.closest("tr").remove();
  renumberActions();
- saveLocal(false);
+ saveLocal(false); scheduleAutoSave("exclusão de plano de ação");
 }
-document.querySelector("#actionTable tbody").addEventListener("input",()=>saveLocal(false));
+document.querySelector("#actionTable tbody").addEventListener("input",()=>{saveLocal(false);scheduleAutoSave("plano de ação")});
 
 function saveLocal(show=true){
  localStorage.setItem(operationStorageKey("matrizRows"),JSON.stringify(rows));
@@ -634,7 +662,7 @@ async function loadSlaNeolog(){slaResetValues();if(activeOperationCode!=="GLP_AC
 async function saveSlaNeolog(){if(activeOperationCode!=="GLP_ACHE"||!activeOperationId)return;const existing=await sb.from("sustentacao_sla_neolog_pontuacoes").select("id,indicador,mes").eq("operacao_id",activeOperationId).eq("ano",selectedYear).limit(500);if(existing.error)throw existing.error;const kept=new Set();for(const item of slaNeologIndicators.filter(x=>!x.final)){for(let m=0;m<12;m++){const value=slaNeologValues[item.name]?.[m];if(value===null||value===undefined||value==="")continue;const payload={operacao_id:activeOperationId,ano:selectedYear,indicador:item.name,mes:m+1,tipo:item.type,valor:Number(value),updated_at:new Date().toISOString()};const q=await sb.from("sustentacao_sla_neolog_pontuacoes").upsert(payload,{onConflict:"operacao_id,ano,indicador,mes"}).select("id").single();if(q.error)throw q.error;kept.add(`${item.name}:${m+1}`)}}const stale=(existing.data||[]).filter(x=>!kept.has(`${x.indicador}:${x.mes}`)).map(x=>x.id);if(stale.length){const d=await sb.from("sustentacao_sla_neolog_pontuacoes").delete().in("id",stale).eq("operacao_id",activeOperationId);if(d.error)throw d.error}}
 async function loadResults(){rows.forEach(r=>r[3]=Array(12).fill(null));let q=await sb.from("sustentacao_resultados").select("*").eq("operacao_id",activeOperationId).eq("ano",selectedYear).order("mes");if(q.error)throw q.error;let names={};Object.entries(indicatorIdMap).forEach(([n,id])=>names[id]=n);(q.data||[]).forEach(x=>{let n=names[x.indicador_id],r=rows.find(z=>z[0]===n);if(!r)return;r[3][x.mes-1]=x.resultado==null?null:+x.resultado;if(!indicatorDetails[n])indicatorDetails[n]={};indicatorDetails[n][x.mes-1]={volumeProduto:x.volume_produto||"",volumeTotal:x.total_processado??"",foraTotal:x.total_fora_meta??"",obs:x.observacao||"",clientes:[],_id:x.id}});let ids=(q.data||[]).map(x=>x.id);if(ids.length){let inv=await sb.from("sustentacao_inventarios").select("*").eq("operacao_id",activeOperationId).in("resultado_id",ids);if(inv.error)throw inv.error;let rm={};(q.data||[]).forEach(x=>rm[x.id]=[names[x.indicador_id],x.mes-1]);(inv.data||[]).forEach(v=>{let z=rm[v.resultado_id];if(z)getDetail(z[0],z[1]).clientes.push({_id:v.id,cliente:v.cliente||"",total:v.total_inventariado??"",correto:v.total_correto??"",fora:v.total_divergente??"",resultado:v.resultado_percentual??""})})}render();saveDetails();syncMsg(rows.length?"Ano "+selectedYear+" carregado":"Operação sem resultados","ok")}
 function N(v){if(v==null||String(v).trim()==="")return null;let n=Number(String(v).replace("%","").replace(",",".").replace(/[^0-9.-]/g,""));return isNaN(n)?null:n}
-async function saveSupabase(){try{if(!activeOperationId)throw new Error("Selecione uma operação carregada.");syncMsg("Salvando...");for(const r of rows){let iid=indicatorIdMap[r[0]];for(let m=0;m<12;m++){let d=getDetail(r[0],m),v=r[3][m],has=d.volumeProduto||d.volumeTotal!==""||d.foraTotal!==""||d.obs||d.clientes?.length;if(v==null&&!has)continue;let payload={operacao_id:activeOperationId,indicador_id:iid,ano:selectedYear,mes:m+1,resultado:N(v),volume_produto:d.volumeProduto||null,total_processado:N(d.volumeTotal),total_fora_meta:N(d.foraTotal),observacao:d.obs||null,updated_at:new Date().toISOString()};let q=await sb.from("sustentacao_resultados").upsert(payload,{onConflict:"operacao_id,indicador_id,ano,mes"}).select("id").single();if(q.error)throw q.error;if(r[0]==="Acuracidade de Estoque"){let existing=await sb.from("sustentacao_inventarios").select("id").eq("operacao_id",activeOperationId).eq("resultado_id",q.data.id).limit(100);if(existing.error)throw existing.error;let beforeIds=new Set((existing.data||[]).map(x=>x.id)),keptIds=new Set();for(const c of (d.clientes||[]).filter(c=>c.cliente?.trim())){let inventoryPayload={operacao_id:activeOperationId,resultado_id:q.data.id,cliente:c.cliente.trim(),total_inventariado:N(c.total),total_correto:N(c.correto),total_divergente:N(c.fora),resultado_percentual:N(c.resultado)};if(c._id){let u=await sb.from("sustentacao_inventarios").update(inventoryPayload).eq("id",c._id).eq("operacao_id",activeOperationId).eq("resultado_id",q.data.id).select("id").single();if(u.error)throw u.error;keptIds.add(c._id)}else{let ins=await sb.from("sustentacao_inventarios").insert(inventoryPayload).select("id").single();if(ins.error)throw ins.error;if(ins.data?.id){c._id=ins.data.id;keptIds.add(ins.data.id)}}}let removed=[...beforeIds].filter(id=>!keptIds.has(id));if(removed.length){let z=await sb.from("sustentacao_inventarios").delete().in("id",removed).eq("operacao_id",activeOperationId);if(z.error)throw z.error}}}}await saveActionsDB();await saveSlaNeolog();syncMsg("Salvo no Supabase ✓","ok")}catch(e){console.error(e);syncMsg("Erro ao salvar","err");alert(e.message)}}
+async function saveSupabase(options={}){const silent=!!options.silent;try{if(!activeOperationId)throw new Error("Selecione uma operação carregada.");if(!silent)syncMsg("Salvando...");for(const r of rows){let iid=indicatorIdMap[r[0]];for(let m=0;m<12;m++){let d=getDetail(r[0],m),v=r[3][m],has=d.volumeProduto||d.volumeTotal!==""||d.foraTotal!==""||d.obs||d.clientes?.length,dirty=autoSaveDirtyAll||autoSaveDirtyKeys.has(`detail:${r[0]}:${m}`)||autoSaveDirtyKeys.has(`result:${r[0]}:${m}`);if(silent&&!dirty)continue;if(v==null&&!has)continue;let payload={operacao_id:activeOperationId,indicador_id:iid,ano:selectedYear,mes:m+1,resultado:N(v),volume_produto:d.volumeProduto||null,total_processado:N(d.volumeTotal),total_fora_meta:N(d.foraTotal),observacao:d.obs||null,updated_at:new Date().toISOString()};let q=await sb.from("sustentacao_resultados").upsert(payload,{onConflict:"operacao_id,indicador_id,ano,mes"}).select("id").single();if(q.error)throw q.error;if(r[0]==="Acuracidade de Estoque"){let existing=await sb.from("sustentacao_inventarios").select("id").eq("operacao_id",activeOperationId).eq("resultado_id",q.data.id).limit(100);if(existing.error)throw existing.error;let beforeIds=new Set((existing.data||[]).map(x=>x.id)),keptIds=new Set();for(const c of (d.clientes||[]).filter(c=>c.cliente?.trim())){let inventoryPayload={operacao_id:activeOperationId,resultado_id:q.data.id,cliente:c.cliente.trim(),total_inventariado:N(c.total),total_correto:N(c.correto),total_divergente:N(c.fora),resultado_percentual:N(c.resultado)};if(c._id){let u=await sb.from("sustentacao_inventarios").update(inventoryPayload).eq("id",c._id).eq("operacao_id",activeOperationId).eq("resultado_id",q.data.id).select("id").single();if(u.error)throw u.error;keptIds.add(c._id)}else{let ins=await sb.from("sustentacao_inventarios").insert(inventoryPayload).select("id").single();if(ins.error)throw ins.error;if(ins.data?.id){c._id=ins.data.id;keptIds.add(ins.data.id)}}}let removed=[...beforeIds].filter(id=>!keptIds.has(id));if(removed.length){let z=await sb.from("sustentacao_inventarios").delete().in("id",removed).eq("operacao_id",activeOperationId);if(z.error)throw z.error}}}}await saveActionsDB();await saveSlaNeolog();if(silent){autoSaveDirtyKeys.clear();autoSaveDirtyAll=false}syncMsg(silent?"Salvamento automático concluído ✓":"Salvo no Supabase ✓","ok")}catch(e){console.error(e);syncMsg(silent?"Erro no salvamento automático":"Erro ao salvar","err");if(!silent)alert(e.message)}}
 function dateDB(s){s=(s||"").trim();if(!s)return null;let p=s.split("/");return p.length===3?p[2]+"-"+p[1]+"-"+p[0]:s}
 function dateBR(s){if(!s)return "";let p=s.split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:s}
 async function saveActionsDB(){if(!activeOperationId)throw new Error("Operação não carregada.");let existing=await sb.from("sustentacao_plano_acao").select("id").eq("operacao_id",activeOperationId).limit(500);if(existing.error)throw existing.error;let activeIds=new Set();let items=[...document.querySelectorAll("#actionTable tbody tr")].map((tr,i)=>({tr,i,id:Number(tr.dataset.id)||null,numero:i+1,acao:(tr.cells[1]?.innerText||"").trim(),responsavel:(tr.cells[2]?.innerText||"").trim()||null,data_inicio:dateDB(tr.cells[3]?.innerText),data_fim:dateDB(tr.cells[4]?.innerText),status:(tr.cells[5]?.innerText||"").trim()||null,observacao:(tr.cells[6]?.innerText||"").trim()||null,ordem:i+1,concluido:tr.dataset.concluido==="true"})).filter(x=>x.acao);for(const item of items){let payload={operacao_id:activeOperationId,numero:item.numero,acao:item.acao,responsavel:item.responsavel,data_inicio:item.data_inicio,data_fim:item.data_fim,status:item.status,observacao:item.observacao,ordem:item.ordem,concluido:item.concluido};if(item.id){let q=await sb.from("sustentacao_plano_acao").update(payload).eq("id",item.id).eq("operacao_id",activeOperationId).select("id").single();if(q.error)throw q.error;activeIds.add(item.id)}else{let q=await sb.from("sustentacao_plano_acao").insert(payload).select("id").single();if(q.error)throw q.error;if(q.data?.id){item.tr.dataset.id=q.data.id;activeIds.add(q.data.id)}}}let removed=(existing.data||[]).map(x=>x.id).filter(id=>!activeIds.has(id));if(removed.length){let d=await sb.from("sustentacao_plano_acao").delete().in("id",removed).eq("operacao_id",activeOperationId);if(d.error)throw d.error}}
