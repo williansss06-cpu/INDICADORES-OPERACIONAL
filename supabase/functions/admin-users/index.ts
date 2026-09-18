@@ -23,12 +23,14 @@ Deno.serve(async (req: Request) => {
   const authorization = req.headers.get("Authorization");
   if (!supabaseUrl || !serviceRoleKey || !authorization) return json({ error: "Configuração de autenticação incompleta" }, 500);
 
+  const adminClient = createClient(supabaseUrl, serviceRoleKey);
   const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
     global: { headers: { Authorization: authorization } },
   });
-  const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-  const { data: caller, error: callerError } = await userClient.auth.getUser();
+  const token = authorization.replace(/^Bearer\s+/i, "").trim();
+  if (!token) return json({ error: "Sessão inválida" }, 401);
+  const { data: caller, error: callerError } = await adminClient.auth.getUser(token);
   if (callerError || !caller.user) return json({ error: "Sessão inválida" }, 401);
 
   const { data: callerProfile, error: profileError } = await adminClient
