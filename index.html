@@ -371,6 +371,8 @@ function operationStorageKey(base){return `${base}:${activeOperationCode||"MATRI
 function operationDisplayName(){return operations.find(x=>x.codigo===activeOperationCode)?.nome||(activeOperationCode==="GLP_ACHE"?"GLP – Operação Aché":"Plano de Sustentação Matriz")}
 function operationShortName(){return activeOperationCode==="GLP_ACHE"?"GLP – Operação Aché":"MATRIZ"}
 function fmt(v){return (v===null||v===""||isNaN(v))?"-":Number(v).toLocaleString("pt-BR",{maximumFractionDigits:2})+"%"}
+function fmtMeta(name,v){return activeOperationCode==="GLP_ACHE"&&name==="Avarias Valor"?Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):Number(v||0).toLocaleString("pt-BR",{maximumFractionDigits:2})+"%"}
+function fmtValue(name,v){return activeOperationCode==="GLP_ACHE"&&name==="Avarias Valor"&&v!==null&&v!==""&&!isNaN(v)?Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):fmt(v)}
 function cellClass(name,val,goal){
  if(val===null||val===""||isNaN(val)) return "";
  let ok=(indicatorMeta[name]?.polaridade==="MENOR"||(!indicatorMeta[name]&&lowerBetter.has(name)))?val<=goal:val>=goal;
@@ -464,8 +466,8 @@ function render(){
  }
  rows.forEach(r=>{
    const tr=document.createElement("tr");
-   tr.innerHTML=`<td><div class="indicatorName"><button class="toggleDetail" onclick="toggleIndicatorDetail(this)" title="Abrir detalhes">+</button><span>${r[0]}</span></div></td><td>${r[1]}%</td><td>${r[2]}%</td>`+
-   months.map((m,i)=>`<td contenteditable="true" data-r="${r[0]}" data-i="${i}" class="editable ${cellClass(r[0],r[3][i],r[2])}">${fmt(r[3][i])}</td>`).join("");
+   tr.innerHTML=`<td><div class="indicatorName"><button class="toggleDetail" onclick="toggleIndicatorDetail(this)" title="Abrir detalhes">+</button><span>${r[0]}</span></div></td><td>${r[1]}%</td><td>${fmtMeta(r[0],r[2])}</td>`+
+   months.map((m,i)=>`<td contenteditable="true" data-r="${r[0]}" data-i="${i}" class="editable ${cellClass(r[0],r[3][i],r[2])}">${fmtValue(r[0],r[3][i])}</td>`).join("");
    tb.appendChild(tr);
    const dtr=document.createElement("tr");
    dtr.className="detailRow";
