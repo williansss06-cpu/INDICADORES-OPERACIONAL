@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 const APP_REDIRECT_URL = "https://williansss06-cpu.github.io/INDICADORES-OPERACIONAL/";
+const LEGACY_AUTH_CUTOFF = "2026-09-23T17:48:36.000Z";
 const FRIENDLY_RATE_LIMIT = "Não foi possível enviar o convite neste momento. O limite temporário de envio de e-mails foi atingido. Tente novamente mais tarde ou verifique a configuração de e-mail.";
 const SUPER_PROFILES = new Set(["admin", "super_admin"]);
 const OPERATION_ADMIN_PROFILES = new Set(["gestor", "administrador_operacao"]);
@@ -127,6 +128,7 @@ async function listAdminUsers(adminClient: ReturnType<typeof createClient>, call
         updated_at: authUser.updated_at ?? null,
         first_access_completed: metadata.first_access_completed === true,
         first_access_completed_at: metadata.first_access_completed_at ?? null,
+        legacy_compatible_active: Boolean(profile && authUser.created_at && authUser.created_at < LEGACY_AUTH_CUTOFF),
       };
     });
 }

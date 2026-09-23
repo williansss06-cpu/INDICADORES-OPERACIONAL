@@ -402,7 +402,7 @@ function adminCancelUser(){adminDraft=null;const e=document.getElementById('admi
 function adminProfileLabel(profile){return ({admin:'Super Administrador',super_admin:'Super Administrador',gestor:'Administrador da Operação',administrador_operacao:'Administrador da Operação',coordenador:'Coordenador',usuario:'Usuário'})[profile]||profile||'Usuário'}
 function adminStatusLabel(status){return ({active:'Ativo',pending:'Convite pendente',inactive:'Inativo',incomplete:'Cadastro incompleto',new:'Novo cadastro'})[status]||'Cadastro incompleto'}
 function adminStatusClass(status){return status==='active'?'ok':status==='inactive'?'off':status==='pending'?'pending':'incomplete'}
-function adminAuthStatus(u){if(!u)return 'incomplete';if(!u.linked)return 'incomplete';if(!u.ativo)return 'inactive';const confirmed=!!(u.email_confirmed_at||u.confirmed_at);const firstAccess=!!u.first_access_completed||!!u.last_sign_in_at;return confirmed&&firstAccess?'active':'pending'}
+function adminAuthStatus(u){if(!u)return 'incomplete';if(!u.linked)return 'incomplete';if(!u.ativo)return 'inactive';const confirmed=!!(u.email_confirmed_at||u.confirmed_at);const firstAccess=!!u.first_access_completed||!!u.legacy_compatible_active;return confirmed&&firstAccess?'active':'pending'}
 function adminAuthStatusDot(status){return status==='active'?'active':status==='inactive'?'inactive':status==='pending'?'pending':'incomplete'}
 function adminResendAvailable(u){return !!u?.user_id&&!u.email_confirmed_at&&!u.confirmed_at}
 function adminDateTime(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?'—':d.toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}
