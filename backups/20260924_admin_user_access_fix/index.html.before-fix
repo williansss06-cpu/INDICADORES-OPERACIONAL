@@ -475,7 +475,6 @@ function adminFriendlyInviteError(error){
   if(error?.code==="EMAIL_RATE_LIMIT"||message.includes("rate limit")||message.includes("over_email_send_rate_limit")||message.includes("limite temporário")||message.includes("too many"))return "Não foi possível enviar o convite neste momento. O limite temporário de envio de e-mails foi atingido. Tente novamente mais tarde ou verifique a configuração de e-mail.";
   if(message.includes("email address not authorized"))return "O destinatário ainda não está autorizado pelo serviço de e-mail do projeto. Configure um SMTP de produção para liberar os convites corporativos.";
   if(message.includes("already confirmed"))return "Este usuário já confirmou o e-mail. Para redefinir a senha, use o fluxo de recuperação de senha.";
-  if(error?.code==="ACCESS_SAVE_ERROR"||message.includes("usuário auth foi preservado")||message.includes("vínculo e as permissões"))return "O usuário foi criado no Auth, mas o vínculo administrativo não terminou. Salve novamente; o sistema reutilizará o mesmo usuário e não criará duplicidade.";
   if(message.includes("sem permissão")||message.includes("permission"))return "Você não possui permissão para administrar este usuário ou operação.";
   if(message.includes("e-mail válido"))return "Informe um e-mail válido para continuar.";
   return "Não foi possível concluir o cadastro do usuário. Verifique os dados e tente novamente.";
@@ -494,7 +493,7 @@ async function adminSaveUser(){
   const nome=document.getElementById("adminName").value.trim(),email=document.getElementById("adminEmail").value.trim().toLowerCase();
   if(!nome||!email){adminStatus("Informe nome e e-mail",true);return}
   const payload=adminInvitePayload();adminInviteBusy=true;adminStatus("Salvando...");adminRenderEditor();
-  try{const result=await adminCallInvite(payload,"save");const userId=result.user_id||adminDraft.userId;const message=result.invite_state==="pending"?"Usuário e permissões salvos. O convite já existe; use Reenviar convite quando necessário.":result.invited?"Convite enviado e permissões salvas":"Permissões salvas";adminStatus(message);await adminLoadData();adminOpenUser(userId)}catch(error){console.error(error);if(error?.code==="ACCESS_SAVE_ERROR"&&error?.user_id&&adminDraft){adminDraft.userId=error.user_id;adminDraft.authStatus="pending";adminDraft.resendApplicable=true}adminStatus(adminFriendlyInviteError(error),true)}finally{adminInviteBusy=false;if(adminDraft)adminRenderEditor()}
+  try{const result=await adminCallInvite(payload,"save");const userId=result.user_id||adminDraft.userId;const message=result.invite_state==="pending"?"Usuário e permissões salvos. O convite já existe; use Reenviar convite quando necessário.":result.invited?"Convite enviado e permissões salvas":"Permissões salvas";adminStatus(message);await adminLoadData();adminOpenUser(userId)}catch(error){console.error(error);adminStatus(adminFriendlyInviteError(error),true)}finally{adminInviteBusy=false;if(adminDraft)adminRenderEditor()}
 }
 
 /* Visão Executiva consolidada por RPC autorizada */

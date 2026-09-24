@@ -267,15 +267,7 @@ Deno.serve(async (req: Request) => {
     p_action_permissions: Array.isArray(body.action_permissions) ? body.action_permissions : [],
   });
   if (rpcError) {
-    console.error("admin_save_user_access failed", {
-      user_id: authUserId,
-      email,
-      code: rpcError.code ?? null,
-      message: rpcError.message ?? null,
-      details: rpcError.details ?? null,
-      hint: rpcError.hint ?? null,
-    });
-    return json({ error: "Não foi possível concluir o vínculo e as permissões do usuário. O usuário Auth foi preservado; salve novamente para concluir sem criar outro cadastro.", code: "ACCESS_SAVE_ERROR", user_id: authUserId }, 400);
+    return json({ error: "Não foi possível salvar o vínculo e as permissões do usuário.", code: "ACCESS_SAVE_ERROR", user_id: authUserId }, 400);
   }
 
   if (inviteError) return authError(inviteError, authUserId);
