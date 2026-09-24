@@ -179,7 +179,6 @@ Deno.serve(async (req: Request) => {
     module_permissions?: unknown[];
     indicator_permissions?: unknown[];
     action_permissions?: unknown[];
-    assistant_permissions?: unknown[];
   };
   try {
     body = await req.json();
@@ -277,21 +276,6 @@ Deno.serve(async (req: Request) => {
       hint: rpcError.hint ?? null,
     });
     return json({ error: "Não foi possível concluir o vínculo e as permissões do usuário. O usuário Auth foi preservado; salve novamente para concluir sem criar outro cadastro.", code: "ACCESS_SAVE_ERROR", user_id: authUserId }, 400);
-  }
-
-  const { error: assistantError } = await userClient.rpc("admin_save_assistant_access", {
-    p_user_id: authUserId,
-    p_permissions: Array.isArray(body.assistant_permissions) ? body.assistant_permissions : [],
-  });
-  if (assistantError) {
-    console.error("admin_save_assistant_access failed", {
-      user_id: authUserId,
-      code: assistantError.code ?? null,
-      message: assistantError.message ?? null,
-      details: assistantError.details ?? null,
-      hint: assistantError.hint ?? null,
-    });
-    return json({ error: "O usuário e as permissões operacionais foram preservados, mas não foi possível salvar as permissões do Assistente. Tente novamente.", code: "ASSISTANT_ACCESS_SAVE_ERROR", user_id: authUserId }, 400);
   }
 
   if (inviteError) return authError(inviteError, authUserId);
