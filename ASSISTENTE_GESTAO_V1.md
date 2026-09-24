@@ -52,6 +52,10 @@ Sem esses secrets, o produto permanece operacional usando o motor determinístic
 5. A pergunta é registrada no histórico mínimo; a resposta é gerada pelo motor determinístico ou pelo modelo backend configurado.
 6. A resposta retorna ao painel lateral, sem modificar dados operacionais.
 
+Na **Visão Executiva**, o Assistente também é apresentado diretamente no dashboard, antes dos cards e gráficos. Esse bloco mostra uma saudação contextual, o período analisado, o resumo de performance, pontos de atenção, ações em aberto, evolução positiva e, quando autorizado, Absenteísmo e SLA Neolog. A primeira leitura é limitada a três prioridades e usa o mesmo conjunto de dados autorizado da visão executiva; não abre pop-up automaticamente. O campo **Pergunte ao Assistente...** permite iniciar uma conversa diretamente no bloco, enquanto **Ver análise completa** abre o painel lateral.
+
+Nas telas de Matriz, GLP/Aché, Absenteísmo e Plano de Ação, um botão contextual discreto **Pergunte sobre esta tela** abre o mesmo painel já vinculado à operação, período, módulo e filtros atuais. A Visão Executiva não recebe esse botão adicional porque já contém a experiência integrada.
+
 ## Arquivos da implementação
 
 - `index.html`: botão, painel lateral, perguntas rápidas, renderização da resposta e editor de permissões.
