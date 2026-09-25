@@ -21,6 +21,7 @@ type Context = {
   atualizado_em?: string;
   indicadores?: Array<Record<string, unknown>>;
   resultados?: Array<Record<string, unknown>>;
+  resultados_historico?: Array<Record<string, unknown>>;
   sla?: Array<Record<string, unknown>>;
   absenteismo?: {
     permitido?: boolean;
@@ -150,6 +151,41 @@ function periodLabel(context: Context) {
   return `${MONTHS[Math.max(0, number(context.mes) - 1)] ?? "mês"}/${context.ano ?? "ano"}`;
 }
 
+function indicatorDeteriorations(context: Context) {
+  const history = context.resultados_historico ?? [];
+  const groups = new Map<number, Array<Record<string, unknown>>>();
+  for (const row of history) {
+    const id = Number(row.indicador_id);
+    if (!Number.isFinite(id)) continue;
+    const list = groups.get(id) ?? [];
+    list.push(row);
+    groups.set(id, list);
+  }
+  const output: Array<Record<string, unknown>> = [];
+  for (const rows of groups.values()) {
+    rows.sort((a, b) => Number(a.mes) - Number(b.mes));
+    if (rows.length < 2) continue;
+    const previous = rows.at(-2);
+    const current = rows.at(-1);
+    if (current?.resultado === null || current?.resultado === undefined || previous?.resultado === null || previous?.resultado === undefined) continue;
+    const currentValue = number(current.resultado);
+    const previousValue = number(previous.resultado);
+    const lowerIsBetter = String(current.polaridade ?? 'MAIOR').toUpperCase() === 'MENOR';
+    const worsened = lowerIsBetter ? currentValue > previousValue : currentValue < previousValue;
+    if (worsened) output.push({
+      indicador_id: current.indicador_id,
+      indicador: current.indicador,
+      mes_anterior: previous.mes,
+      mes_atual: current.mes,
+      anterior: previousValue,
+      atual: currentValue,
+      variacao: currentValue - previousValue,
+      polaridade: current.polaridade,
+    });
+  }
+  return output.sort((a, b) => Math.abs(number(b.variacao)) - Math.abs(number(a.variacao)));
+}
+
 function recurringRows(context: Context) {
   const abs = context.absenteismo ?? {};
   return Array.isArray(abs.recorrentes_mes) ? abs.recorrentes_mes : (abs.recorrentes ?? []);
@@ -179,6 +215,7 @@ function recordsUsedForIntent(context: Context, intent: Intent) {
   if (["indicadores_abaixo_meta", "indicador_queda", "ofensores", "executive_summary", "screen", "unknown"].includes(intent)) {
     add("sustentacao_indicadores", context.indicadores);
     add("sustentacao_resultados", context.resultados);
+    if (intent === "indicador_queda") add("sustentacao_resultados_historicos", context.resultados_historico);
   }
   if (["acoes_atrasadas", "executive_summary", "screen", "unknown"].includes(intent)) add("sustentacao_plano_acao", context.acoes);
   if (["sla_neolog", "executive_summary", "screen", "unknown"].includes(intent)) add("sustentacao_sla_neolog_pontuacoes", context.sla);
@@ -204,7 +241,7 @@ function compactContext(context: Context, intent: Intent) {
       return { ...base, absenteismo: { mensal: abs.mensal ?? [], motivos: (abs.motivos ?? []).slice(0, 10), areas: (abs.areas ?? []).slice(0, 10) } };
     case "indicadores_abaixo_meta":
     case "indicador_queda":
-      return { ...base, indicadores: summarizeIndicators(context), resultados: context.resultados ?? [], acoes: context.acoes ?? [] };
+      return { ...base, indicadores: summarizeIndicators(context), resultados: context.resultados ?? [], resultados_historico: (context.resultados_historico ?? []).slice(0, 100), acoes: context.acoes ?? [] };
     case "ofensores":
       return { ...base, indicadores: summarizeIndicators(context), absenteismo: { mensal: abs.mensal ?? [], pessoas: (abs.pessoas ?? []).slice(0, 10), areas: (abs.areas ?? []).slice(0, 10), motivos: (abs.motivos ?? []).slice(0, 10) }, acoes: context.acoes ?? [] };
     case "acoes_atrasadas":
@@ -240,7 +277,7 @@ function suggestionsForIntent(intent: Intent, context: Context, answer: string) 
     push("Compare a concentração com o mês anterior", (abs.mensal ?? []).length >= 2);
   }
   if (intent === "absenteismo_recorrencia") {
-    push("Quem são os recorrentes com mais horas?", (abs.recorrentes ?? []).length > 0);
+    push("Quem são os recorrentes com mais horas?", recurringRows(context).length > 0);
     push("Qual área concentra mais recorrentes?", (abs.areas ?? []).length > 0);
     push("Quais motivos mais aparecem no período?", (abs.motivos ?? []).length > 0);
   }
@@ -316,9 +353,10 @@ function answerForIntent(question: string, context: Context, intent: Intent) {
     case "indicadores_abaixo_meta":
       return `## Indicadores abaixo da meta\n${source}\n\n${below.length ? `Foram encontrados ${below.length} indicador(es) abaixo da meta: ${below.map((x) => `${x.name} (${x.result === null ? "sem resultado" : brNumber(x.result)} contra ${brNumber(x.target)})`).join(", ")}.` : "Não foram encontrados indicadores abaixo da meta entre os resultados disponíveis."}` + questionLine;
     case "indicador_queda": {
-      const rows = indicators.filter((x) => x.status === "abaixo da meta");
-      if (!rows.length) return `## Quedas e pioras\n${source}\n\nNão há indicador abaixo da meta no período disponível. Para afirmar uma queda, seria necessário possuir resultados comparáveis de meses anteriores.` + questionLine;
-      return `## Quedas e pioras\n${source}\n\nOs indicadores que exigem atenção no período são: ${rows.map((x) => `${x.name} (${x.result === null ? "sem resultado" : brNumber(x.result)} contra meta ${brNumber(x.target)})`).join(", ")}. A base disponível não permite afirmar a causa da queda sem uma série histórica ou informação adicional.` + questionLine;
+      const rows = indicatorDeteriorations(context);
+      const belowRows = indicators.filter((x) => x.status === "abaixo da meta");
+      if (!rows.length) return `## Quedas e pioras\n${source}\n\nNão foram encontrados indicadores que pioraram quando comparados ao mês anterior disponível. ${belowRows.length ? `Ainda assim, estão abaixo da meta: ${belowRows.map((x) => x.name).join(", ")}.` : "Não há desvio de meta no recorte atual."}` + questionLine;
+      return `## Quedas e pioras\n${source}\n\nOs indicadores que pioraram na comparação histórica são: ${rows.slice(0, 8).map((x) => `${x.indicador} (${brNumber(x.anterior)} → ${brNumber(x.atual)}; variação ${number(x.variacao) >= 0 ? "+" : ""}${brNumber(x.variacao)})`).join("; ")}. A comparação usa os dois últimos resultados disponíveis por indicador e não determina a causa da piora.` + questionLine;
     }
     case "ofensores":
       return topPeople.length ? `## Principais ofensores\n${source}\n\nOs maiores impactos identificados são: ${topPeople.map((x) => `${x.colaborador ?? "Não informado"} (${brNumber(x.horas)} h)`).join(", ")}. A área de maior concentração retornada é ${topAreas[0]?.area ?? "não informada"}. Os dados mostram concentração, mas não determinam causalidade.` + questionLine : noData("principais ofensores");

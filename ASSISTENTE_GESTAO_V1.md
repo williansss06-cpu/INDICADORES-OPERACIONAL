@@ -71,6 +71,7 @@ Nas telas de Matriz, GLP/Aché, Absenteísmo e Plano de Ação, um botão contex
 - `supabase/migrations/20260924_assistente_gestao_sla_compat.sql`: compatibilidade dos lançamentos SLA históricos sem `indicador_id`.
 - `supabase/functions/assistant-management/index.ts`: Edge Function JWT, contexto e análise.
 - `supabase/migrations/20260925_assistente_conversa_contexto.sql`: RPC somente leitura para série mensal e recorrência usadas pela conversa.
+- `supabase/migrations/20260925_assistente_resultados_historico.sql`: ampliação da mesma RPC com resultados históricos autorizados para responder comparações de piora.
 - `supabase/functions/admin-users/index.ts`: persistência das permissões do Assistente no fluxo administrativo.
 - `backups/20260924_assistente_gestao_v1/`: cópia reversível do frontend e da Edge Function administrativa antes da alteração.
 - `backups/20260925_assistente_conversacional/`: backup do frontend e da Edge Function anterior à evolução conversacional.
