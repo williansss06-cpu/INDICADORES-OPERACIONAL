@@ -52,6 +52,14 @@ Sem esses secrets, o produto permanece operacional usando o motor determinístic
 5. A pergunta é registrada no histórico mínimo; a resposta é gerada pelo motor determinístico ou pelo modelo backend configurado.
 6. A resposta retorna ao painel lateral, sem modificar dados operacionais.
 
+## Conversa orientada por intenção
+
+O Assistente agora diferencia a pergunta atual antes de montar a resposta. As intenções cobertas incluem **Resumo Executivo**, **Absenteísmo**, **contribuidores**, **recorrência**, **tendência**, **indicadores abaixo da meta**, **quedas**, **ofensores**, **ações atrasadas**, **SLA NEOLOG**, **operação** e **análise da tela**. A intenção é usada para selecionar o contexto mínimo necessário; uma pergunta sobre Absenteísmo, por exemplo, não precisa carregar todos os resultados de indicadores e ações.
+
+Cada resposta informa a operação, período e atualização, além da intenção identificada, fontes consultadas e quantidade de registros utilizados. O frontend registra a pergunta e a resposta na conversa da sessão, mostra claramente o usuário e o Assistente, e apresenta sugestões de continuidade geradas conforme os dados realmente disponíveis. Ao trocar de operação ou encerrar a sessão, a conversa é limpa para impedir mistura de contexto.
+
+A série mensal e a identificação de recorrentes são calculadas pela RPC somente leitura `assistente_obter_conversa_contexto`, que reutiliza a autorização da RPC base e mantém o filtro por operação e permissão de Absenteísmo. A Edge Function registra no console operacional um rastreamento resumido no formato **pergunta → intenção → fontes → registros**, sem expor tokens, chaves ou dados fora do escopo autorizado.
+
 Na **Visão Executiva**, o Assistente também é apresentado diretamente no dashboard, antes dos cards e gráficos. Esse bloco mostra uma saudação contextual, o período analisado, o resumo de performance, pontos de atenção, ações em aberto, evolução positiva e, quando autorizado, Absenteísmo e SLA Neolog. A primeira leitura é limitada a três prioridades e usa o mesmo conjunto de dados autorizado da visão executiva; não abre pop-up automaticamente. O campo **Pergunte ao Assistente...** permite iniciar uma conversa diretamente no bloco, enquanto **Ver análise completa** abre o painel lateral.
 
 Nas telas de Matriz, GLP/Aché, Absenteísmo e Plano de Ação, um botão contextual discreto **Pergunte sobre esta tela** abre o mesmo painel já vinculado à operação, período, módulo e filtros atuais. A Visão Executiva não recebe esse botão adicional porque já contém a experiência integrada.
@@ -62,8 +70,10 @@ Nas telas de Matriz, GLP/Aché, Absenteísmo e Plano de Ação, um botão contex
 - `supabase/migrations/20260924_assistente_gestao_v1.sql`: tabelas, RLS, permissões iniciais e RPCs.
 - `supabase/migrations/20260924_assistente_gestao_sla_compat.sql`: compatibilidade dos lançamentos SLA históricos sem `indicador_id`.
 - `supabase/functions/assistant-management/index.ts`: Edge Function JWT, contexto e análise.
+- `supabase/migrations/20260925_assistente_conversa_contexto.sql`: RPC somente leitura para série mensal e recorrência usadas pela conversa.
 - `supabase/functions/admin-users/index.ts`: persistência das permissões do Assistente no fluxo administrativo.
 - `backups/20260924_assistente_gestao_v1/`: cópia reversível do frontend e da Edge Function administrativa antes da alteração.
+- `backups/20260925_assistente_conversacional/`: backup do frontend e da Edge Function anterior à evolução conversacional.
 
 ## Limites conhecidos da V1
 
