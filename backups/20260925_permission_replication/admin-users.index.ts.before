@@ -21,7 +21,7 @@ const ALLOWED_PROFILES = new Set([
   "usuario",
 ]);
 
-type AdminAction = "save" | "resend" | "list" | "replicate";
+type AdminAction = "save" | "resend" | "list";
 
 type AuthUser = {
   id: string;
@@ -180,10 +180,6 @@ Deno.serve(async (req: Request) => {
     indicator_permissions?: unknown[];
     action_permissions?: unknown[];
     assistant_permissions?: unknown[];
-    source_user_id?: string;
-    target_user_id?: string;
-    copy_profile?: boolean;
-    replication_mode?: "REPLACE" | "MERGE";
   };
   try {
     body = await req.json();
@@ -191,43 +187,13 @@ Deno.serve(async (req: Request) => {
     return json({ error: "JSON inválido" }, 400);
   }
 
-  const action: AdminAction = body.action === "list"
-    ? "list"
-    : body.action === "resend"
-      ? "resend"
-      : body.action === "replicate"
-        ? "replicate"
-        : "save";
+  const action: AdminAction = body.action === "list" ? "list" : body.action === "resend" ? "resend" : "save";
   if (action === "list") {
     try {
       return json({ ok: true, users: await listAdminUsers(adminClient, caller.user.id, callerProfile) });
     } catch {
       return json({ error: "Não foi possível consultar os usuários do Auth." }, 400);
     }
-  }
-
-  if (action === "replicate") {
-    const sourceUserId = String(body.source_user_id ?? "").trim();
-    const targetUserId = String(body.target_user_id ?? "").trim();
-    if (!sourceUserId || !targetUserId || sourceUserId === targetUserId) {
-      return json({ error: "Selecione usuários de origem e destino diferentes.", code: "REPLICATION_INPUT_ERROR" }, 400);
-    }
-    const { data, error } = await userClient.rpc("admin_replicate_user_permissions", {
-      p_source_user_id: sourceUserId,
-      p_target_user_id: targetUserId,
-      p_copy_profile: body.copy_profile !== false,
-      p_mode: body.replication_mode === "MERGE" ? "MERGE" : "REPLACE",
-    });
-    if (error) {
-      console.error("admin_replicate_user_permissions failed", {
-        source_user_id: sourceUserId,
-        target_user_id: targetUserId,
-        code: error.code ?? null,
-        message: error.message ?? null,
-      });
-      return json({ error: "Não foi possível replicar as permissões. Verifique o escopo dos usuários e tente novamente.", code: "REPLICATION_ERROR" }, 400);
-    }
-    return json({ ok: true, ...(data ?? {}), message: "Cadastro e permissões replicados com sucesso." });
   }
 
   const email = String(body.email ?? "").trim().toLowerCase();
