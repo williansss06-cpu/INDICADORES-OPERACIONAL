@@ -448,7 +448,7 @@ Deno.serve(async (req: Request) => {
     invite_state: inviteState,
     temporary_password: temporaryPassword,
     message: temporaryPassword
-      ? "Usuário aprovado e permissões salvas. Compartilhe a senha temporária por canal seguro; ela deverá ser trocada no primeiro acesso."
+      ? "Conta Auth confirmada e permissões salvas. Compartilhe a senha temporária por canal seguro; ela deverá ser trocada no primeiro acesso."
       : inviteState === "confirmed" ? "Usuário e permissões salvos." : "Usuário e permissões salvos; o convite permanece pendente.",
   });
 });
