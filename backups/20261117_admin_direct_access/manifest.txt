@@ -1,0 +1,8 @@
+Backup antes de implementar acesso direto com senha temporária e troca obrigatória no primeiro login.
+Base Git: bc59f69ab32af8fa5e41b8e340731c5a4e87b975
+Data UTC: 2026-11-17T19:06:15Z
+
+ff423d6e82a125afa72b8267abf5ae383964722c2b549acd26743e1d85b26ab4  backups/20261117_admin_direct_access/index.html.before
+71ce5b78bee616c12e7fb9dd0f518bbf0f38099cdb42aadea248ea49d3ba923d  backups/20261117_admin_direct_access/admin-users.index.ts.before
+
+Branch: main

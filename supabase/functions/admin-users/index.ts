@@ -21,7 +21,7 @@ const ALLOWED_PROFILES = new Set([
   "usuario",
 ]);
 
-type AdminAction = "save" | "resend" | "list" | "replicate";
+type AdminAction = "save" | "resend" | "list" | "replicate" | "provision" | "temporary_password";
 
 type AuthUser = {
   id: string;
@@ -34,6 +34,20 @@ type AuthUser = {
   created_at?: string | null;
   updated_at?: string | null;
   user_metadata?: Record<string, unknown>;
+};
+
+type AdminProfile = {
+  user_id: string;
+  email?: string | null;
+  nome?: string | null;
+  perfil?: string | null;
+  ativo?: boolean | null;
+};
+
+type OperationLink = {
+  user_id: string;
+  operacao_id: number;
+  ativo: boolean;
 };
 
 function json(data: unknown, status = 200) {
@@ -50,11 +64,11 @@ function isEmailRateLimit(error: unknown) {
 }
 
 function authError(error: unknown, userId?: string) {
-  const value = error as { message?: string } | null;
-  if (isEmailRateLimit(error)) {
-    return json({ error: FRIENDLY_RATE_LIMIT, code: "EMAIL_RATE_LIMIT", user_id: userId ?? null }, 429);
-  }
-  return json({ error: value?.message ?? "Não foi possível enviar o convite.", code: "AUTH_INVITE_ERROR", user_id: userId ?? null }, 400);
+  const value = error as { code?: string; message?: string } | null;
+  const text = `${value?.code ?? ""} ${value?.message ?? ""}`.toLowerCase();
+  if (isEmailRateLimit(error)) return json({ error: FRIENDLY_RATE_LIMIT, code: "EMAIL_RATE_LIMIT", user_id: userId ?? null }, 429);
+  if (text.includes("email_exists") || text.includes("already registered") || text.includes("already exists")) return json({ error: "Já existe uma conta com esse e-mail. Selecione o cadastro existente ou use Criar / Recuperar Senha; nada foi substituído.", code: "AUTH_USER_ALREADY_EXISTS", user_id: userId ?? null }, 409);
+  return json({ error: "Não foi possível concluir o cadastro ou a atualização da senha.", code: "AUTH_ADMIN_ACTION_ERROR", user_id: userId ?? null }, 400);
 }
 
 async function listAllAuthUsers(adminClient: ReturnType<typeof createClient>): Promise<AuthUser[]> {
@@ -74,6 +88,25 @@ async function findAuthUser(adminClient: ReturnType<typeof createClient>, email:
   return users.find((user) => (user.email ?? "").toLowerCase() === email) ?? null;
 }
 
+function generateTemporaryPassword() {
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower = "abcdefghijkmnopqrstuvwxyz";
+  const digits = "23456789";
+  const symbols = "!@#%^*-_=+";
+  const alphabet = upper + lower + digits + symbols;
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  const chars = [upper[bytes[0] % upper.length], lower[bytes[1] % lower.length], digits[bytes[2] % digits.length], symbols[bytes[3] % symbols.length]];
+  for (let i = 4; i < bytes.length; i += 1) chars.push(alphabet[bytes[i] % alphabet.length]);
+  for (let i = chars.length - 1; i > 0; i -= 1) {
+    const random = new Uint32Array(1);
+    crypto.getRandomValues(random);
+    const j = random[0] % (i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join("");
+}
+
 async function listAdminUsers(adminClient: ReturnType<typeof createClient>, callerId: string, callerProfile: { perfil: string }) {
   const [authUsers, profilesQuery, linksQuery] = await Promise.all([
     listAllAuthUsers(adminClient),
@@ -83,8 +116,8 @@ async function listAdminUsers(adminClient: ReturnType<typeof createClient>, call
   if (profilesQuery.error) throw profilesQuery.error;
   if (linksQuery.error) throw linksQuery.error;
 
-  const profiles = profilesQuery.data ?? [];
-  const links = linksQuery.data ?? [];
+  const profiles = (profilesQuery.data ?? []) as AdminProfile[];
+  const links = (linksQuery.data ?? []) as OperationLink[];
   const isSuper = SUPER_PROFILES.has(String(callerProfile.perfil));
   let visibleUserIds: Set<string> | null = null;
   if (!isSuper) {
@@ -128,6 +161,8 @@ async function listAdminUsers(adminClient: ReturnType<typeof createClient>, call
         updated_at: authUser.updated_at ?? null,
         first_access_completed: metadata.first_access_completed === true,
         first_access_completed_at: metadata.first_access_completed_at ?? null,
+        require_password_change: metadata.require_password_change === true,
+        temporary_password_issued_at: metadata.temporary_password_issued_at ?? null,
         legacy_compatible_active: Boolean(profile && authUser.created_at && authUser.created_at < LEGACY_AUTH_CUTOFF),
       };
     });
@@ -197,7 +232,11 @@ Deno.serve(async (req: Request) => {
       ? "resend"
       : body.action === "replicate"
         ? "replicate"
-        : "save";
+        : body.action === "provision"
+          ? "provision"
+          : body.action === "temporary_password"
+            ? "temporary_password"
+            : "save";
   if (action === "list") {
     try {
       return json({ ok: true, users: await listAdminUsers(adminClient, caller.user.id, callerProfile) });
@@ -230,6 +269,46 @@ Deno.serve(async (req: Request) => {
     return json({ ok: true, ...(data ?? {}), message: "Cadastro e permissões replicados com sucesso." });
   }
 
+  if (action === "temporary_password") {
+    const targetUserId = String(body.target_user_id ?? "").trim();
+    if (!targetUserId) return json({ error: "Selecione um usuário vinculado para gerar uma senha temporária.", code: "TARGET_USER_REQUIRED" }, 400);
+    if (!isSuper) {
+      if (!OPERATION_ADMIN_PROFILES.has(String(callerProfile.perfil))) return json({ error: "Somente administradores podem gerar credenciais de usuários.", code: "USER_OUT_OF_SCOPE" }, 403);
+      const [callerLinks, targetLinks] = await Promise.all([
+        adminClient.from("sustentacao_usuario_operacoes").select("operacao_id").eq("user_id", caller.user.id).eq("ativo", true),
+        adminClient.from("sustentacao_usuario_operacoes").select("operacao_id").eq("user_id", targetUserId).eq("ativo", true),
+      ]);
+      if (callerLinks.error || targetLinks.error) return json({ error: "Não foi possível validar o escopo operacional deste usuário.", code: "USER_SCOPE_CHECK_ERROR" }, 500);
+      const callerOperationIds = new Set((callerLinks.data ?? []).map((link) => Number(link.operacao_id)));
+      const targetInScope = (targetLinks.data ?? []).some((link) => callerOperationIds.has(Number(link.operacao_id)));
+      if (!targetInScope) return json({ error: "Você não possui permissão para gerar credenciais deste usuário.", code: "USER_OUT_OF_SCOPE" }, 403);
+    }
+    const { data: targetProfile, error: targetProfileError } = await adminClient.from("sustentacao_usuarios").select("user_id,ativo").eq("user_id", targetUserId).maybeSingle();
+    if (targetProfileError) return json({ error: "Não foi possível validar o vínculo do usuário.", code: "TARGET_PROFILE_ERROR" }, 500);
+    if (!targetProfile || targetProfile.ativo !== true) return json({ error: "Somente usuários vinculados e ativos podem receber uma senha temporária.", code: "TARGET_NOT_ACTIVE" }, 409);
+    const { data: targetAuth, error: targetAuthError } = await adminClient.auth.admin.getUserById(targetUserId);
+    if (targetAuthError || !targetAuth.user) return json({ error: "Usuário não encontrado no Auth.", code: "AUTH_USER_NOT_FOUND" }, 404);
+    const targetMetadata = targetAuth.user.user_metadata ?? {};
+    const legacyActive = Boolean(targetAuth.user.created_at && targetAuth.user.created_at < LEGACY_AUTH_CUTOFF && targetMetadata.require_password_change !== true);
+    if (targetMetadata.first_access_completed === true || legacyActive) return json({ error: "Este usuário já concluiu o primeiro acesso. Use o fluxo Criar / Recuperar Senha para não substituir uma senha ativa.", code: "FIRST_ACCESS_ALREADY_COMPLETED" }, 409);
+    const temporaryPassword = generateTemporaryPassword();
+    const issuedAt = new Date().toISOString();
+    const metadata = {
+      ...(targetAuth.user.user_metadata ?? {}),
+      first_access_completed: false,
+      first_access_completed_at: null,
+      require_password_change: true,
+      temporary_password_issued_at: issuedAt,
+    };
+    const { error: updateError } = await adminClient.auth.admin.updateUserById(targetUserId, {
+      password: temporaryPassword,
+      email_confirm: true,
+      user_metadata: metadata,
+    });
+    if (updateError) return authError(updateError, targetUserId);
+    return json({ ok: true, user_id: targetUserId, invite_state: "password_pending", temporary_password: temporaryPassword, message: "Senha temporária criada. O usuário deverá defini-la novamente no primeiro acesso." });
+  }
+
   const email = String(body.email ?? "").trim().toLowerCase();
   const nome = String(body.nome ?? "").trim();
   const perfil = String(body.perfil ?? "usuario").trim().toLowerCase();
@@ -257,38 +336,69 @@ Deno.serve(async (req: Request) => {
 
   let authUserId = existing?.id;
   let invited = false;
-  let inviteState: "new" | "pending" | "confirmed" = existing
+  let inviteState: "new" | "pending" | "confirmed" | "password_pending" = existing
     ? (existing.email_confirmed_at || existing.confirmed_at ? "confirmed" : "pending")
     : "new";
   let inviteError: unknown = null;
+  let temporaryPassword: string | null = null;
 
-  const shouldSendInvite = action === "resend"
-    ? Boolean(existing && !existing.email_confirmed_at && !existing.confirmed_at)
-    : !existing;
-
-  if (shouldSendInvite) {
-    const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
-      data: { nome, perfil },
-      redirectTo: APP_REDIRECT_URL,
+  if (action === "provision") {
+    if (existing) return json({ error: "Já existe uma conta Auth para este e-mail. Nenhuma senha ou permissão foi alterada; selecione o usuário existente ou use a recuperação de senha.", code: "AUTH_USER_ALREADY_EXISTS", user_id: existing.id }, 409);
+    temporaryPassword = generateTemporaryPassword();
+    const { data, error } = await adminClient.auth.admin.createUser({
+      email,
+      password: temporaryPassword,
+      email_confirm: true,
+      user_metadata: {
+        nome,
+        perfil,
+        first_access_completed: false,
+        require_password_change: true,
+        first_access_created_at: new Date().toISOString(),
+        temporary_password_issued_at: new Date().toISOString(),
+      },
     });
-    authUserId = data?.user?.id ?? authUserId;
-    if (error || !authUserId) {
-      inviteError = error ?? new Error("Não foi possível criar o usuário no Auth.");
-      try {
-        const afterError = await findAuthUser(adminClient, email);
-        authUserId = afterError?.id ?? authUserId;
-      } catch {
-        // Preserva o erro original do Auth para a resposta amigável ao administrador.
-      }
+    if (error || !data?.user?.id) {
+      inviteError = error ?? new Error("Não foi possível criar a identidade no Auth.");
+      temporaryPassword = null;
     } else {
-      invited = true;
-      inviteState = "pending";
+      authUserId = data.user.id;
+      inviteState = "password_pending";
     }
-  } else if (action === "resend" && existing?.email_confirmed_at) {
-    return json({ ok: true, user_id: existing.id, existing: true, invited: false, invite_state: "confirmed", message: "Este usuário já confirmou o e-mail." });
+  } else {
+    const shouldSendInvite = action === "resend"
+      ? Boolean(existing && !existing.email_confirmed_at && !existing.confirmed_at)
+      : !existing;
+
+    if (shouldSendInvite) {
+      const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
+        data: { nome, perfil },
+        redirectTo: APP_REDIRECT_URL,
+      });
+      authUserId = data?.user?.id ?? authUserId;
+      if (error || !authUserId) {
+        inviteError = error ?? new Error("Não foi possível criar o usuário no Auth.");
+        try {
+          const afterError = await findAuthUser(adminClient, email);
+          authUserId = afterError?.id ?? authUserId;
+        } catch {
+          // Preserva o erro original do Auth para a resposta amigável ao administrador.
+        }
+      } else {
+        invited = true;
+        inviteState = "pending";
+      }
+    } else if (action === "resend" && existing?.email_confirmed_at) {
+      return json({ ok: true, user_id: existing.id, existing: true, invited: false, invite_state: "confirmed", message: "Este usuário já confirmou o e-mail." });
+    }
   }
 
-  if (!authUserId) return authError(inviteError ?? new Error("Não foi possível criar o usuário no Auth."));
+  if (!authUserId) {
+    if (action === "provision" && isEmailRateLimit(inviteError)) {
+      return json({ error: "Não foi possível provisionar a conta neste momento. Aguarde alguns minutos e tente novamente.", code: "AUTH_PROVISION_ERROR" }, 429);
+    }
+    return authError(inviteError ?? new Error("Não foi possível criar o usuário no Auth."));
+  }
 
   const { error: rpcError } = await userClient.rpc("admin_save_user_access", {
     p_user_id: authUserId,
@@ -336,6 +446,9 @@ Deno.serve(async (req: Request) => {
     invited,
     existing: Boolean(existing),
     invite_state: inviteState,
-    message: inviteState === "confirmed" ? "Usuário e permissões salvos." : "Usuário e permissões salvos; o convite permanece pendente.",
+    temporary_password: temporaryPassword,
+    message: temporaryPassword
+      ? "Usuário aprovado e permissões salvas. Compartilhe a senha temporária por canal seguro; ela deverá ser trocada no primeiro acesso."
+      : inviteState === "confirmed" ? "Usuário e permissões salvos." : "Usuário e permissões salvos; o convite permanece pendente.",
   });
 });
